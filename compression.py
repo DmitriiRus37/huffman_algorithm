@@ -7,18 +7,7 @@ class Algorythm:
         self.table_of_codes = {}
         self.char_freq = {}
 
-    def compress_str(self, source, debug):
-        self.define_freq(source)
-
-        for k, v in self.char_freq.items():
-            self.nodes.append(node.Node(letter=k, freq=v))
-        self.create_huffman_tree()
-        self.create_table(self.nodes[0], '')
-        if debug:
-            self.debug_info()
-        return self.encode(source)
-
-    def compress_file(self, source, dest):
+    def compress(self, source, dest):
         text = ''
         with open(source, "r") as f:
             for line in f:
@@ -28,23 +17,30 @@ class Algorythm:
         for k, v in self.char_freq.items():
             self.nodes.append(node.Node(letter=k, freq=v))
         self.create_huffman_tree()
-        table = {}
-        self.create_table(table, self.nodes[0], '')
+        self.create_table(self.nodes[0], '')
         encoded_text = self.encode(text)
+        self.write_table_info(dest)
         with open(dest + 'encoded', "w") as f:
             f.write(encoded_text)
         # decoded_text = decode(encoded_text, table)
         # with open(dest + 'decoded', "w") as f:
         #     f.write(decoded_text)
 
-    def debug_info(self):
-        d = self.char_freq
-        t = self.table_of_codes
+    def get_table_info(self):
         print('letter\tfrequency\tcode')
-        for k, v in d.items():
-            print(k + '\t' + str(v) + '\t' + t[k])
+        for k, v in self.char_freq.items():
+            print(k + '\t' + str(v) + '\t' + self.table_of_codes[k])
 
-    def decode(self, encoded):
+    def write_table_info(self, dest):
+        with open(dest + 'table', "w") as f:
+            f.write('letter\tfrequency\tcode\n')
+            for k, v in self.char_freq.items():
+                if k == '\n':
+                    f.write('sp' + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
+                else:
+                    f.write(k + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
+
+    def decode(self):
         decoded = ''
         while len(encoded) > 0:
             found = False

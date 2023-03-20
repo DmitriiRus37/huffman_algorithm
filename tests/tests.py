@@ -1,8 +1,8 @@
-import algorythm
+import compression
 
 
 def test1():
-    alg = algorythm.Algorythm()
+    alg = compression.Algorythm()
     string_to_check = 'abcdefghijklmnopqrstuvwxyz' \
                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
                       'абвгдеёжзийклмнопрстуфхцчшщьыъэюя' \
