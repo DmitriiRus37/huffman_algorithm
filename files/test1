@@ -1,0 +1,30 @@
+# Function that calculates the cube perimeter
+def calc_cube_perimeter(side):
+    return side * 12
+
+
+# Function that calculates the cube area
+def calc_cube_area(side):
+    return 6 * (side ** 2)
+
+
+def calc_cube(side, amount):
+    cube_perimeter = calc_cube_perimeter(side)
+    full_length = cube_perimeter * amount
+    cube_area = calc_cube_area(side)
+    full_area = cube_area * amount
+    print(f' Периметр {amount} кубов = {full_length}')
+    print(f' Площадь {amount} кубов = {full_area}')
+
+
+s = input(f'Введите длину стороны куба:')
+while not s.isdigit():
+    print('введите число')
+    s = input()
+
+a = input(f'Введите количество кубов:')
+while not s.isdigit():
+    print('введите число')
+    a = input()
+
+calc_cube(int(s), int(a))
