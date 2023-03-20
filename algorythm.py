@@ -73,7 +73,7 @@ class Algorythm:
         if len(self.nodes) == 1:
             return self.nodes
         else:
-            self.nodes.sort(key=lambda x: x.char_freq)
+            self.nodes.sort(key=lambda x: x.freq)
             parent = node.Node(left=self.nodes[0], right=self.nodes[1])
             self.nodes.append(parent)
             del self.nodes[0]

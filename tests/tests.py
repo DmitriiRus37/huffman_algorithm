@@ -1,5 +1,3 @@
-import pytest
-
 import algorythm
 
 
@@ -16,4 +14,5 @@ def test1():
 
     assert result == encoded_string
 
-    decoded_text = alg.decode(result)
+    decoded_res = alg.decode(result)
+    assert decoded_res == string_to_check
