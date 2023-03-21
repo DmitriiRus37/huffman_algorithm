@@ -1,55 +1,43 @@
 class Algorythm:
     def __init__(self):
         self.table_of_codes = {}
+        self.bit_string = ''
 
     def get_table_of_codes(self, f):
-        byte_tuple = (ord(f.read(1)), ord(f.read(1)), ord(f.read(1)), ord(f.read(1)))
-        bits = ''
-        for i in range(len(byte_tuple)):
-            bits += bin(byte_tuple[i])[2:].rjust(8, '0')
-
-        alphabet_count = 0
-        for bit in bits:
-            alphabet_count = (alphabet_count << 1) | int(bit)
+        bits = [bin(ord(f.read(1)))[2:].rjust(8, '0') for i in range(4)]
+        bits = ''.join(bits)
+        alphabet_count = int("".join(i for i in bits), 2)
 
         chars = []
         char_codes = []
         for i in range(alphabet_count):
-            char_tuple = (ord(f.read(1)), ord(f.read(1)), ord(f.read(1)), ord(f.read(1)))
-            bits = ''
-            for i in range(len(char_tuple)):
-                bits += bin(char_tuple[i])[2:].rjust(8, '0')
-            char = 0
-            for bit in bits:
-                char = (char << 1) | int(bit)
+            bits = process_4_bytes(f)
+            char = int(bits, 2)
             chars.append(chr(char))
+
         for i in range(alphabet_count):
-            code_tuple = (ord(f.read(1)), ord(f.read(1)), ord(f.read(1)), ord(f.read(1)))
-            bits = ''
-            for i in range(len(code_tuple)):
-                bits += bin(code_tuple[i])[2:].rjust(8, '0')
+            bits = process_4_bytes(f)
             char_codes.append(bits[bits.index('1') + 1:])
+
         for i in range(alphabet_count):
-            self.table_of_codes[chars[i]] = char_codes[i]
-        self.table_of_codes = {v: k for k, v in self.table_of_codes.items()}
+            self.table_of_codes[char_codes[i]] = chars[i]
 
     def decompress(self, source: str, dest: str):
         with open(source, "rb") as f:
             self.get_table_of_codes(f)
-            bit_string = ''
             byte = f.read(1)
             while len(byte) > 0:
                 byte = ord(byte)
                 bits = bin(byte)[2:].rjust(8, '0')
-                bit_string += bits
+                self.bit_string += bits
                 byte = f.read(1)
-        bit_string = remove_padding(bit_string)
-        self.decode(bit_string, dest)
+        self.remove_padding()
+        self.decode(dest)
 
-    def decode(self, bit_string, dest):
+    def decode(self, dest):
         decoded_text = ''
         current_code = ''
-        for bit in bit_string:
+        for bit in self.bit_string:
             current_code += bit
             if current_code in self.table_of_codes:
                 decoded_text += self.table_of_codes[current_code]
@@ -57,9 +45,13 @@ class Algorythm:
         with open(dest, "w") as f:
             f.write(decoded_text)
 
+    def remove_padding(self):
+        byte = self.bit_string[:8]
+        padding_bits = int(byte, 2)
+        length = len(self.bit_string) - padding_bits
+        self.bit_string = self.bit_string[8:length]
 
-def remove_padding(bit_string):
-    byte = bit_string[:8]
-    padding_bits = int(byte, 2)
-    length = len(bit_string) - padding_bits
-    return bit_string[8:length]
+
+def process_4_bytes(f):
+    bits1 = [bin(ord(f.read(1)))[2:].rjust(8, '0') for _ in range(4)]
+    return ''.join(bits1)
