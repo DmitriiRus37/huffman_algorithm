@@ -3,8 +3,9 @@ import node
 
 def pad_bit_string(string: str):
     padding = 8 - len(string) % 8
-    padding_byte = '{0:08b}'.format(padding)
-    return padding_byte + string + '0' * padding
+    if padding == 8:
+        padding = 0
+    return '{0:08b}'.format(padding) + string + '0' * padding
 
 
 class Algorythm:
@@ -44,21 +45,6 @@ class Algorythm:
                     f.write('sp' + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
                 else:
                     f.write(k + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
-
-    def decode(self):
-        decoded = ''
-        while len(encoded) > 0:
-            found = False
-            for k, v in self.table_of_codes.items():
-                code_len = len(v)
-                if encoded[:code_len] == v:
-                    decoded += k
-                    found = True
-                    encoded = encoded[code_len:]
-                    break
-            if not found:
-                raise Exception('code not found')
-        return decoded
 
     def encode(self, text):
         bit_string = ''.join(self.table_of_codes[ch] for ch in text)

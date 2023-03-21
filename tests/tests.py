@@ -13,6 +13,3 @@ def test1():
     table_of_codes = alg.table_of_codes
 
     assert result == encoded_string
-
-    decoded_res = alg.decode(result)
-    assert decoded_res == string_to_check

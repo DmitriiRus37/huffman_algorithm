@@ -19,22 +19,40 @@ class Algorythm:
                     self.table_of_codes[' '] = array[2][:-1]
                 else:
                     self.table_of_codes[array[0]] = array[2][:-1]
+        self.table_of_codes = {v: k for k, v in self.table_of_codes.items()}
 
-    def decode(self, source: str, dest: str):
+    def decompress(self, source: str, dest: str):
         decoded = ''
 
-        with open(source, "r") as f:
-            encoded_text = f.read()
-            decoded_text = ''
-            while len(encoded_text) > 0:
-                found = False
-                for k, v in self.table_of_codes.items():
-                    if encoded_text.find(v) == 0:
-                        decoded_text += k
-                        encoded_text = encoded_text[len(v):]
-                        found = True
-                        break
-                if not found:
-                    raise Exception('code not found')
-        with open(dest, 'w') as f:
+        with open(source, "rb") as f:
+            bit_string = ''
+            byte = f.read(1)
+            while len(byte) > 0:
+                byte = ord(byte)
+                bits = bin(byte)[2:].rjust(8, '0')
+                bit_string += bits
+                byte = f.read(1)
+
+        bit_string = remove_padding(bit_string)
+        self.decode(bit_string, dest)
+
+    def decode(self, bit_string, dest):
+        decoded_text = ''
+        code = ''
+        for bit in bit_string:
+            code += bit
+            if code in self.table_of_codes:
+                decoded_text += self.table_of_codes[code]
+                code = ''
+        with open(dest, "w") as f:
             f.write(decoded_text)
+
+
+def remove_padding(bit_string):
+    byte = bit_string[:8]
+    padding_bits = int(byte, 2)
+    bit_string = bit_string[8:]
+
+    length = len(bit_string) - padding_bits
+
+    return bit_string[:length]
