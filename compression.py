@@ -36,11 +36,10 @@ class Algorythm:
                 self.freq = self.left.freq + self.right.freq
 
     def add_char_info(self, string):
-        info = ''
         alphabet_length = len(self.table_of_codes.keys())
 
         # 4 bytes to store count of symbols in alphabet
-        info += '{0:32b}'.format(alphabet_length).replace(' ', '0')
+        info = '{0:32b}'.format(alphabet_length).replace(' ', '0')
 
         # 4 bytes for every symbol
         # 4 bytes for every symbol code (there is '1' before every symbol code)
@@ -50,7 +49,6 @@ class Algorythm:
         symbol_codes = ''
         for k, v in self.table_of_codes.items():
             symbols += '{0:32b}'.format(ord(k)).replace(' ', '0')
-            # code =
             symbol_codes += ('1' + v).rjust(32, '0')
         return info + symbols + symbol_codes + string
 
