@@ -16,19 +16,18 @@ class Algorythm:
 
     def compress(self, source, dest):
         text = ''
-        with open(source, "r") as f:
-            for line in f:
+        with open(source, "r") as f_in, open(dest + '_encoded', "wb") as f_out:
+            for line in f_in:
                 text += line
                 self.define_freq(line)
 
-        for k, v in self.char_freq.items():
-            self.nodes.append(node.Node(letter=k, freq=v))
-        self.create_huffman_tree()
-        self.create_table(self.nodes[0], '')
-        byte_arr = self.encode(text)
-        with open(dest + '_encoded', "wb") as f:
-            f.write(bytes(byte_arr))
-        self.write_table_info(dest)
+            for k, v in self.char_freq.items():
+                self.nodes.append(node.Node(letter=k, freq=v))
+            self.create_huffman_tree()
+            self.create_table(self.nodes[0], '')
+            self.write_table_info(dest)
+            byte_arr = self.encode(text)
+            f_out.write(bytes(byte_arr))
 
     def get_table_info(self):
         print('letter\tfrequency\tcode')
