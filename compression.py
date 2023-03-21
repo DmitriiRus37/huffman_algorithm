@@ -55,7 +55,7 @@ class Algorythm:
 
     def compress(self, source, dest):
         text = ''
-        with open(source, "r") as f_in, open(dest + '_encoded', "wb") as f_out:
+        with open(source, "r") as f_in, open(dest, "wb") as f_out:
             for line in f_in:
                 text += line
                 self.define_freq(line)
@@ -66,6 +66,11 @@ class Algorythm:
             self.create_table_of_codes(self.nodes[0], '')
             byte_arr = self.encode(text)
             f_out.write(bytes(byte_arr))
+
+    def define_freq(self, s: str):
+        d = self.char_freq
+        for ch in list(s):
+            d[ch] = 1 if ch not in d.keys() else d[ch] + 1
 
     def get_table_info(self):
         print('letter\tfrequency\tcode')
@@ -89,8 +94,3 @@ class Algorythm:
             del self.nodes[0]
             del self.nodes[0]
             self.create_huffman_tree()
-
-    def define_freq(self, s: str):
-        d = self.char_freq
-        for ch in list(s):
-            d[ch] = 1 if ch not in d.keys() else d[ch] + 1

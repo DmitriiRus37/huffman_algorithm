@@ -10,5 +10,12 @@
    a) `python3 main.py *source_path* *dest_path*` to encode;   
    or   
    b) `python3 main.py decode *source_path* *dest_path*` to decode;
+
+
+Compressed binary string consists of:
+1. count of unique symbols (4 bytes)
+2. symbols encoding (4 bytes per symbol)
+3. symbol codes (4 bytes per code)
+4. sequence 
  
 
