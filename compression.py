@@ -1,7 +1,7 @@
 import node
 
 
-def pad_bit_string(string: str):
+def add_pad(string: str):
     padding = 8 - len(string) % 8
     if padding == 8:
         padding = 0
@@ -13,6 +13,24 @@ class Algorythm:
         self.nodes = []
         self.table_of_codes = {}
         self.char_freq = {}
+
+    def add_char_info(self, string):
+        info = ''
+        alphabet_length = len(self.table_of_codes.keys())
+
+        # 4 bytes to store count of symbols
+        info += '{0:32b}'.format(alphabet_length).replace(' ', '0')
+
+        # 4 bytes * alphabet_length (1 byte is symbol coding)
+        symbols = ''
+        symbol_codes = ''
+        for k, v in self.table_of_codes.items():
+            symbols += '{0:32b}'.format(ord(k)).replace(' ', '0')
+            symbol_codes += '{0:32b}'.format(int(v)).replace(' ', '0')
+
+
+
+
 
     def compress(self, source, dest):
         text = ''
@@ -47,7 +65,8 @@ class Algorythm:
 
     def encode(self, text):
         bit_string = ''.join(self.table_of_codes[ch] for ch in text)
-        bit_string = pad_bit_string(bit_string)
+        bit_string = add_pad(bit_string)
+        # bit_string = self.add_char_info(bit_string)
         b_arr = bytearray()
         for i in range(0, len(bit_string), 8):
             byte = bit_string[i:i + 8]
