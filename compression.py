@@ -1,6 +1,12 @@
 import node
 
 
+def pad_bit_string(string: str):
+    padding = 8 - len(string) % 8
+    padding_byte = '{0:08b}'.format(padding)
+    return padding_byte + string + '0' * padding
+
+
 class Algorythm:
     def __init__(self):
         self.nodes = []
@@ -18,13 +24,10 @@ class Algorythm:
             self.nodes.append(node.Node(letter=k, freq=v))
         self.create_huffman_tree()
         self.create_table(self.nodes[0], '')
-        encoded_text = self.encode(text)
+        byte_arr = self.encode(text)
+        with open(dest + '_encoded', "wb") as f:
+            f.write(bytes(byte_arr))
         self.write_table_info(dest)
-        with open(dest + 'encoded', "w") as f:
-            f.write(encoded_text)
-        # decoded_text = decode(encoded_text, table)
-        # with open(dest + 'decoded', "w") as f:
-        #     f.write(decoded_text)
 
     def get_table_info(self):
         print('letter\tfrequency\tcode')
@@ -32,10 +35,12 @@ class Algorythm:
             print(k + '\t' + str(v) + '\t' + self.table_of_codes[k])
 
     def write_table_info(self, dest):
-        with open(dest + 'table', "w") as f:
+        with open(dest + '_table', "w") as f:
             f.write('letter\tfrequency\tcode\n')
             for k, v in self.char_freq.items():
                 if k == '\n':
+                    f.write('bl' + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
+                elif k == ' ':
                     f.write('sp' + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
                 else:
                     f.write(k + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
@@ -56,7 +61,14 @@ class Algorythm:
         return decoded
 
     def encode(self, text):
-        return ''.join(self.table_of_codes[ch] for ch in text)
+        bit_string = ''.join(self.table_of_codes[ch] for ch in text)
+        bit_string = pad_bit_string(bit_string)
+        b_arr = bytearray()
+        for i in range(0, len(bit_string), 8):
+            byte = bit_string[i:i + 8]
+            int_val = int(byte, 2)
+            b_arr.append(int_val)
+        return b_arr
 
     def create_table(self, n, code):
         if n.left is None and n.right is None:

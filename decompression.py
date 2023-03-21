@@ -8,14 +8,15 @@ class Algorythm:
     def get_table_of_codes(self, source: str):
         with open(source.replace('encoded', '') + 'table', "r") as f:
             i = -1
-            line_break = ''
             for line in f:
                 i += 1
                 if i == 0:
                     continue
                 array = line.split('\t')
-                if array[0] == 'sp':
+                if array[0] == 'bl':
                     self.table_of_codes['\n'] = array[2][:-1]
+                elif array[0] == 'sp':
+                    self.table_of_codes[' '] = array[2][:-1]
                 else:
                     self.table_of_codes[array[0]] = array[2][:-1]
 
