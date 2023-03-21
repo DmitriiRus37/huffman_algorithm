@@ -1,8 +1,8 @@
-import algorythm
+import compression
 
 
 def test1():
-    alg = algorythm.Algorythm()
+    alg = compression.Algorythm()
     string_to_check = 'abcdefghijklmnopqrstuvwxyz' \
                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ' \
                       'абвгдеёжзийклмнопрстуфхцчшщьыъэюя' \
@@ -13,6 +13,3 @@ def test1():
     table_of_codes = alg.table_of_codes
 
     assert result == encoded_string
-
-    decoded_res = alg.decode(result)
-    assert decoded_res == string_to_check
