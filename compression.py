@@ -28,10 +28,6 @@ class Algorythm:
             symbols += '{0:32b}'.format(ord(k)).replace(' ', '0')
             symbol_codes += '{0:32b}'.format(int(v)).replace(' ', '0')
 
-
-
-
-
     def compress(self, source, dest):
         text = ''
         with open(source, "r") as f_in, open(dest + '_encoded', "wb") as f_out:
