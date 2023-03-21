@@ -27,15 +27,31 @@ class Algorythm:
         info = ''
         alphabet_length = len(self.table_of_codes.keys())
 
-        # 4 bytes to store count of symbols
+        # 4 bytes to store count of symbols in alphabet
         info += '{0:32b}'.format(alphabet_length).replace(' ', '0')
 
-        # 4 bytes * alphabet_length (1 byte is symbol coding)
+        # 4 bytes for every symbol
+        # 4 bytes for every symbol code (there is '1' before every symbol code)
+        # for exemaple: code is '0001'; it will be '10001'
+        # (symbol_1, symbol_2, symbol_n) (code_1, code_2, code_n)
         symbols = ''
         symbol_codes = ''
         for k, v in self.table_of_codes.items():
             symbols += '{0:32b}'.format(ord(k)).replace(' ', '0')
-            symbol_codes += '{0:32b}'.format(int(v)).replace(' ', '0')
+            # code =
+            symbol_codes += ('1' + v).rjust(32, '0')
+        return info + symbols + symbol_codes + string
+
+    def encode(self, text):
+        bit_string = ''.join(self.table_of_codes[ch] for ch in text)
+        bit_string = add_pad(bit_string)
+        bit_string = self.add_char_info(bit_string)
+        b_arr = bytearray()
+        for i in range(0, len(bit_string), 8):
+            byte = bit_string[i:i + 8]
+            int_val = int(byte, 2)
+            b_arr.append(int_val)
+        return b_arr
 
     def compress(self, source, dest):
         text = ''
@@ -47,8 +63,7 @@ class Algorythm:
             for k, v in self.char_freq.items():
                 self.nodes.append(self.Node(letter=k, freq=v))
             self.create_huffman_tree()
-            self.create_table(self.nodes[0], '')
-            self.write_table_info(dest)
+            self.create_table_of_codes(self.nodes[0], '')
             byte_arr = self.encode(text)
             f_out.write(bytes(byte_arr))
 
@@ -57,34 +72,12 @@ class Algorythm:
         for k, v in self.char_freq.items():
             print(k + '\t' + str(v) + '\t' + self.table_of_codes[k])
 
-    def write_table_info(self, dest):
-        with open(dest + '_table', "w") as f:
-            f.write('letter\tfrequency\tcode\n')
-            for k, v in self.char_freq.items():
-                if k == '\n':
-                    f.write('bl' + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
-                elif k == ' ':
-                    f.write('sp' + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
-                else:
-                    f.write(k + '\t' + str(v) + '\t' + self.table_of_codes[k] + '\n')
-
-    def encode(self, text):
-        bit_string = ''.join(self.table_of_codes[ch] for ch in text)
-        bit_string = add_pad(bit_string)
-        # bit_string = self.add_char_info(bit_string)
-        b_arr = bytearray()
-        for i in range(0, len(bit_string), 8):
-            byte = bit_string[i:i + 8]
-            int_val = int(byte, 2)
-            b_arr.append(int_val)
-        return b_arr
-
-    def create_table(self, n, code):
+    def create_table_of_codes(self, n, code):
         if n.left is None and n.right is None:
             self.table_of_codes[n.letter] = ''.join(str(x) for x in code)
         else:
-            self.create_table(n.left, code + '0')
-            self.create_table(n.right, code + '1')
+            self.create_table_of_codes(n.left, code + '0')
+            self.create_table_of_codes(n.right, code + '1')
 
     def create_huffman_tree(self):
         if len(self.nodes) == 1:

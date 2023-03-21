@@ -1,28 +1,41 @@
-import node
-
-
 class Algorythm:
     def __init__(self):
         self.table_of_codes = {}
 
-    def get_table_of_codes(self, source: str):
-        with open(source.replace('encoded', '') + 'table', "r") as f:
-            i = -1
-            for line in f:
-                i += 1
-                if i == 0:
-                    continue
-                array = line.split('\t')
-                if array[0] == 'bl':
-                    self.table_of_codes['\n'] = array[2][:-1]
-                elif array[0] == 'sp':
-                    self.table_of_codes[' '] = array[2][:-1]
-                else:
-                    self.table_of_codes[array[0]] = array[2][:-1]
+    def get_table_of_codes(self, f):
+        byte_tuple = (ord(f.read(1)), ord(f.read(1)), ord(f.read(1)), ord(f.read(1)))
+        bits = ''
+        for i in range(len(byte_tuple)):
+            bits += bin(byte_tuple[i])[2:].rjust(8, '0')
+
+        alphabet_count = 0
+        for bit in bits:
+            alphabet_count = (alphabet_count << 1) | int(bit)
+
+        chars = []
+        char_codes = []
+        for i in range(alphabet_count):
+            char_tuple = (ord(f.read(1)), ord(f.read(1)), ord(f.read(1)), ord(f.read(1)))
+            bits = ''
+            for i in range(len(char_tuple)):
+                bits += bin(char_tuple[i])[2:].rjust(8, '0')
+            char = 0
+            for bit in bits:
+                char = (char << 1) | int(bit)
+            chars.append(chr(char))
+        for i in range(alphabet_count):
+            code_tuple = (ord(f.read(1)), ord(f.read(1)), ord(f.read(1)), ord(f.read(1)))
+            bits = ''
+            for i in range(len(code_tuple)):
+                bits += bin(code_tuple[i])[2:].rjust(8, '0')
+            char_codes.append(bits[bits.index('1') + 1:])
+        for i in range(alphabet_count):
+            self.table_of_codes[chars[i]] = char_codes[i]
         self.table_of_codes = {v: k for k, v in self.table_of_codes.items()}
 
     def decompress(self, source: str, dest: str):
         with open(source, "rb") as f:
+            self.get_table_of_codes(f)
             bit_string = ''
             byte = f.read(1)
             while len(byte) > 0:
