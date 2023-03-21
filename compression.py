@@ -1,6 +1,3 @@
-import node
-
-
 def add_pad(string: str):
     padding = 8 - len(string) % 8
     if padding == 8:
@@ -13,6 +10,18 @@ class Algorythm:
         self.nodes = []
         self.table_of_codes = {}
         self.char_freq = {}
+
+    class Node:
+        def __init__(self, **kwargs):
+            if 'letter' in kwargs and 'freq' in kwargs:
+                self.letter = kwargs['letter']
+                self.freq = kwargs['freq']
+                self.left = None
+                self.right = None
+            elif 'left' in kwargs and 'right' in kwargs:
+                self.left = kwargs['left']
+                self.right = kwargs['right']
+                self.freq = self.left.freq + self.right.freq
 
     def add_char_info(self, string):
         info = ''
@@ -36,7 +45,7 @@ class Algorythm:
                 self.define_freq(line)
 
             for k, v in self.char_freq.items():
-                self.nodes.append(node.Node(letter=k, freq=v))
+                self.nodes.append(self.Node(letter=k, freq=v))
             self.create_huffman_tree()
             self.create_table(self.nodes[0], '')
             self.write_table_info(dest)
@@ -82,7 +91,7 @@ class Algorythm:
             return self.nodes
         else:
             self.nodes.sort(key=lambda x: x.freq)
-            parent = node.Node(left=self.nodes[0], right=self.nodes[1])
+            parent = self.Node(left=self.nodes[0], right=self.nodes[1])
             self.nodes.append(parent)
             del self.nodes[0]
             del self.nodes[0]
