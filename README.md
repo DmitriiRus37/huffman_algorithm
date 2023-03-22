@@ -20,8 +20,8 @@ Compressed binary string consists of:
 
 
 You can check:
-`python3 main.py files/test2.xml files/test2_enc && python3 main.py decode files/test2_enc files/res`
 
+`python3 main.py files/test2.xml files/test2_enc && python3 main.py decode files/test2_enc files/res`
 --- 1.2671279907226562 seconds to define symbols frequency ---
 --- 2.659576416015625 seconds to encode file ---
 --- 3.9388046264648438 seconds to compress file ---
