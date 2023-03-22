@@ -39,10 +39,10 @@ class Algorythm:
                 file_str.write(bits)
                 byte = f.read(1)
         self.bit_string = file_str.getvalue()
-        print("--- %s seconds to read all bytes from file ---" % (time.time() - start_read_bytes_time))
+        print(f"--- {time.time() - start_read_bytes_time} seconds to read all bytes from file ---")
         self.remove_padding()
         self.decode(dest)
-        print("--- %s seconds to decompress ---" % (time.time() - start_decompress_time))
+        print(f"--- {time.time() - start_decompress_time} seconds to decompress ---")
 
     def decode(self, dest):
         start_decode_time = time.time()
@@ -55,7 +55,7 @@ class Algorythm:
                 current_code = ''
         with open(dest, "w") as f:
             f.write(file_str.getvalue())
-        print("--- %s seconds to decode file and write it to dest ---" % (time.time() - start_decode_time))
+        print(f"--- {time.time() - start_decode_time} seconds to decode file and write it to dest ---")
 
     def remove_padding(self):
         byte = self.bit_string[:8]

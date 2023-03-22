@@ -1,3 +1,4 @@
+import os
 from io import StringIO
 import time
 
@@ -39,7 +40,7 @@ class Algorythm:
             del self.nodes[0]
             self.create_huffman_tree()
 
-    def add_char_info(self, string):
+    def add_header_info(self, string):
         alphabet_length = len(self.table_of_codes.keys())
 
         # 4 bytes to store count of symbols in alphabet
@@ -61,9 +62,9 @@ class Algorythm:
         bits_io = StringIO()
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
-        bits = self.add_char_info(bits)
+        bits = self.add_header_info(bits)
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
-        print("--- %s seconds to encode file ---" % (time.time() - start_encode_time))
+        print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return b_arr
 
     def compress(self, source, dest):
@@ -75,7 +76,11 @@ class Algorythm:
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
-        print("--- %s seconds to compress file ---" % (time.time() - start_compress_time))
+        print(f"--- {time.time() - start_compress_time} seconds to compress file ---")
+        input_size = os.path.getsize(source)
+        output_size = os.path.getsize(dest)
+        compress_percent = "{:.2f}".format(output_size / input_size * 100)
+        print(f"--- Compression: {compress_percent} % ---")
 
     def define_freq(self, path: str):
         start_define_freq_time = time.time()
@@ -84,7 +89,8 @@ class Algorythm:
             for line in f:
                 for ch in list(line):
                     d[ch] = d[ch] + 1 if ch in d.keys() else 1
-        print("--- %s seconds to define symbols frequency ---" % (time.time() - start_define_freq_time))
+        print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
+        print(f"--- {len(self.char_freq)} different symbols ---")
 
     def create_table_of_codes(self, n, code):
         if n.left == n.right:
