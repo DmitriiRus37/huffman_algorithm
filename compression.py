@@ -2,7 +2,6 @@ from io import StringIO
 import time
 
 
-
 def add_pad(string: str):
     padding = 8 - len(string) % 8
     if padding == 8:
