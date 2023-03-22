@@ -9,23 +9,12 @@ def add_pad(string: str):
     return '{0:08b}'.format(padding) + string + '0' * padding
 
 
-def create_huffman_tree(nodes):
-    if len(nodes) == 1:
-        return nodes
-    else:
-        nodes.sort(key=lambda x: x.freq)
-        parent = Algorythm.Node(left=nodes[0], right=nodes[1])
-        nodes.append(parent)
-        del nodes[0]
-        del nodes[0]
-        create_huffman_tree(nodes)
-
-
 class Algorythm:
 
     def __init__(self):
         self.table_of_codes = {}
         self.char_freq = {}
+        self.nodes = []
 
     class Node:
         def __init__(self, **kwargs):
@@ -38,6 +27,17 @@ class Algorythm:
                 self.left = kwargs['left']
                 self.right = kwargs['right']
                 self.freq = self.left.freq + self.right.freq
+
+    def create_huffman_tree(self):
+        if len(self.nodes) == 1:
+            return
+        else:
+            self.nodes.sort(key=lambda x: x.freq)
+            parent = Algorythm.Node(left=self.nodes[0], right=self.nodes[1])
+            self.nodes.append(parent)
+            del self.nodes[0]
+            del self.nodes[0]
+            self.create_huffman_tree()
 
     def add_char_info(self, string):
         alphabet_length = len(self.table_of_codes.keys())
@@ -73,9 +73,9 @@ class Algorythm:
     def compress(self, source, dest):
         start_compress_time = time.time()
         self.define_freq(source)
-        nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
-        create_huffman_tree(nodes)
-        self.create_table_of_codes(nodes[0], '')
+        self.nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
+        self.create_huffman_tree()
+        self.create_table_of_codes(self.nodes[0], '')
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
