@@ -1,4 +1,6 @@
 from io import StringIO
+import time
+
 
 
 def add_pad(string: str):
@@ -56,6 +58,7 @@ class Algorythm:
         return info + symbols + symbol_codes + string
 
     def encode(self, file):
+        start_encode_time = time.time()
         bits_io = StringIO()
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
@@ -65,28 +68,30 @@ class Algorythm:
             byte = bits[i:i + 8]
             int_val = int(byte, 2)
             b_arr.append(int_val)
+        print("--- %s seconds to encode file ---" % (time.time() - start_encode_time))
         return b_arr
 
     def compress(self, source, dest):
+        start_compress_time = time.time()
         self.define_freq(source)
         nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         create_huffman_tree(nodes)
+        start_create_table_of_codes_time = time.time()
         self.create_table_of_codes(nodes[0], '')
+        print("--- %s seconds to create table of codes ---" % (time.time() - start_create_table_of_codes_time))
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
+        print("--- %s seconds to compress file {source} ---" % (time.time() - start_compress_time))
 
     def define_freq(self, path: str):
+        start_define_freq_time = time.time()
         d = self.char_freq
         with open(path, "r") as f:
             for line in f:
                 for ch in list(line):
                     d[ch] = d[ch] + 1 if ch in d.keys() else 1
-
-    def get_table_info(self):
-        print('letter\tfrequency\tcode')
-        for k, v in self.char_freq.items():
-            print(k + '\t' + str(v) + '\t' + self.table_of_codes[k])
+        print("--- %s seconds to define symbols frequency ---" % (time.time() - start_define_freq_time))
 
     def create_table_of_codes(self, n, code):
         if n.left == n.right:
