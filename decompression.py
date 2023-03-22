@@ -1,3 +1,4 @@
+import os
 from io import StringIO
 import time
 
@@ -43,6 +44,10 @@ class Algorythm:
         self.remove_padding()
         self.decode(dest)
         print(f"--- {time.time() - start_decompress_time} seconds to decompress ---")
+        input_size = os.path.getsize(source)
+        output_size = os.path.getsize(dest)
+        compress_percent = "{:.2f}".format(input_size / output_size * 100)
+        print(f"--- Compression: {compress_percent} % ---")
 
     def decode(self, dest):
         start_decode_time = time.time()

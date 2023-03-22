@@ -89,8 +89,8 @@ class Algorythm:
             for line in f:
                 for ch in list(line):
                     d[ch] = d[ch] + 1 if ch in d.keys() else 1
-        print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
         print(f"--- {len(self.char_freq)} different symbols ---")
+        print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
     def create_table_of_codes(self, n, code):
         if n.left == n.right:
