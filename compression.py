@@ -62,11 +62,7 @@ class Algorythm:
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
         bits = self.add_char_info(bits)
-        b_arr = bytearray()
-        for i in range(0, len(bits), 8):
-            byte = bits[i:i + 8]
-            int_val = int(byte, 2)
-            b_arr.append(int_val)
+        b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
         print("--- %s seconds to encode file ---" % (time.time() - start_encode_time))
         return b_arr
 
