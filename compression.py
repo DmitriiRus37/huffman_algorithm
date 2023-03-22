@@ -76,13 +76,11 @@ class Algorythm:
         self.define_freq(source)
         nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         create_huffman_tree(nodes)
-        start_create_table_of_codes_time = time.time()
         self.create_table_of_codes(nodes[0], '')
-        print("--- %s seconds to create table of codes ---" % (time.time() - start_create_table_of_codes_time))
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
-        print("--- %s seconds to compress file {source} ---" % (time.time() - start_compress_time))
+        print("--- %s seconds to compress file ---" % (time.time() - start_compress_time))
 
     def define_freq(self, path: str):
         start_define_freq_time = time.time()
