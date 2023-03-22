@@ -1,3 +1,6 @@
+from io import StringIO
+
+
 def add_pad(string: str):
     padding = 8 - len(string) % 8
     if padding == 8:
@@ -36,11 +39,10 @@ class Algorythm:
                 self.freq = self.left.freq + self.right.freq
 
     def add_char_info(self, string):
-        info = ''
         alphabet_length = len(self.table_of_codes.keys())
 
         # 4 bytes to store count of symbols in alphabet
-        info += '{0:32b}'.format(alphabet_length).replace(' ', '0')
+        info = '{0:32b}'.format(alphabet_length).replace(' ', '0')
 
         # 4 bytes for every symbol
         # 4 bytes for every symbol code (there is '1' before every symbol code)
@@ -50,15 +52,13 @@ class Algorythm:
         symbol_codes = ''
         for k, v in self.table_of_codes.items():
             symbols += '{0:32b}'.format(ord(k)).replace(' ', '0')
-            # code =
             symbol_codes += ('1' + v).rjust(32, '0')
         return info + symbols + symbol_codes + string
 
     def encode(self, file):
-        bits = ''
-        for line in file:
-            bits += ''.join(self.table_of_codes[ch] for ch in line)
-        bits = add_pad(bits)
+        bits_io = StringIO()
+        [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
+        bits = add_pad(bits_io.getvalue())
         bits = self.add_char_info(bits)
         b_arr = bytearray()
         for i in range(0, len(bits), 8):
@@ -69,13 +69,10 @@ class Algorythm:
 
     def compress(self, source, dest):
         self.define_freq(source)
-
+        nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
+        create_huffman_tree(nodes)
+        self.create_table_of_codes(nodes[0], '')
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
-            nodes = []
-            for k, v in self.char_freq.items():
-                nodes.append(self.Node(letter=k, freq=v))
-            create_huffman_tree(nodes)
-            self.create_table_of_codes(nodes[0], '')
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
 
@@ -84,7 +81,7 @@ class Algorythm:
         with open(path, "r") as f:
             for line in f:
                 for ch in list(line):
-                    d[ch] = 1 if ch not in d.keys() else d[ch] + 1
+                    d[ch] = d[ch] + 1 if ch in d.keys() else 1
 
     def get_table_info(self):
         print('letter\tfrequency\tcode')
