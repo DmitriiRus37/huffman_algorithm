@@ -1,4 +1,6 @@
+import os
 from io import StringIO
+import time
 
 
 class Algorythm:
@@ -26,20 +28,29 @@ class Algorythm:
             self.table_of_codes[char_codes[i]] = chars[i]
 
     def decompress(self, source: str, dest: str):
+        start_decompress_time = time.time()
         file_str = StringIO()
         with open(source, "rb") as f:
             self.get_table_of_codes(f)
             byte = f.read(1)
+            start_read_bytes_time = time.time()
             while len(byte) > 0:
                 byte = ord(byte)
                 bits = bin(byte)[2:].rjust(8, '0')
                 file_str.write(bits)
                 byte = f.read(1)
         self.bit_string = file_str.getvalue()
+        print(f"--- {time.time() - start_read_bytes_time} seconds to read all bytes from file ---")
         self.remove_padding()
         self.decode(dest)
+        print(f"--- {time.time() - start_decompress_time} seconds to decompress ---")
+        input_size = os.path.getsize(source)
+        output_size = os.path.getsize(dest)
+        compress_percent = "{:.2f}".format(input_size / output_size * 100)
+        print(f"--- Compression: {compress_percent} % ---")
 
     def decode(self, dest):
+        start_decode_time = time.time()
         current_code = ''
         file_str = StringIO()
         for bit in self.bit_string:
@@ -49,6 +60,7 @@ class Algorythm:
                 current_code = ''
         with open(dest, "w") as f:
             f.write(file_str.getvalue())
+        print(f"--- {time.time() - start_decode_time} seconds to decode file and write it to dest ---")
 
     def remove_padding(self):
         byte = self.bit_string[:8]
