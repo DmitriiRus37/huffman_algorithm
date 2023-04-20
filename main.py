@@ -1,20 +1,20 @@
 import os
 import sys
 
-import compression
-import decompression
+from compression import Compression
+from decompression import Decompression
 
 
 def main():
     if sys.argv[1] == 'decode':
-        dec = decompression.Algorythm()
         source_path = os.path.abspath(sys.argv[2])
         dest_path = os.path.abspath(sys.argv[3])
+        dec = Decompression()
         dec.decompress(source_path, dest_path)
     else:
-        c = compression.Algorythm()
         source_path = os.path.abspath(sys.argv[1])
         dest_path = os.path.abspath(sys.argv[2])
+        c = Compression()
         c.compress(source_path, dest_path)
 
 

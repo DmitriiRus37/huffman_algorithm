@@ -4,7 +4,7 @@ import time
 import compression
 
 
-class Algorythm:
+class Decompression:
     def __init__(self):
         self.table_of_codes = {}
         self.bit_string = ''
@@ -22,7 +22,7 @@ class Algorythm:
         with open(source, "rb") as f:
             header = self.read_header(f)
             header = self.WrapValue(header)
-            root_node = compression.Algorythm.Node(left=None, right=None)
+            root_node = compression.Compression.Node(left=None, right=None)
             self.nodes.append(root_node)
             self.restore_tree(root_node, header, '')
 
@@ -43,21 +43,21 @@ class Algorythm:
         compress_percent = "{:.2f}".format(input_size / output_size * 100)
         print(f"--- Compression: {compress_percent} % ---")
 
-    def set_letter_to_a_node(self, node: compression.Algorythm.Node, letter: str, code: str):
+    def set_letter_to_a_node(self, node: compression.Compression.Node, letter: str, code: str):
         node.letter = letter
         self.table_of_codes[code] = letter
 
-    def restore_tree(self, node: compression.Algorythm.Node, symbol_str: WrapValue, code: str):
+    def restore_tree(self, node: compression.Compression.Node, symbol_str: WrapValue, code: str):
         if symbol_str.val == '':
             return
         symbol = symbol_str.val[0]
         symbol_str.val = symbol_str.val[1:]
         if symbol == '0':
-            left_node = compression.Algorythm.Node(left=None, right=None)
+            left_node = compression.Compression.Node(left=None, right=None)
             node.left = left_node
             self.restore_tree(left_node, symbol_str, code + '0')
 
-            right_node = compression.Algorythm.Node(left=None, right=None)
+            right_node = compression.Compression.Node(left=None, right=None)
             node.right = right_node
             self.restore_tree(right_node, symbol_str, code + '1')
         elif symbol == '1':

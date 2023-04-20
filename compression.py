@@ -10,37 +10,20 @@ def add_pad(string: str):
     return '{0:08b}'.format(padding) + string + '0' * padding
 
 
-class Algorythm:
+class Compression:
 
     def __init__(self):
         self.table_of_codes = {}
         self.char_freq = {}
         self.nodes = []
 
-    class Node:
-        def __init__(self, **kwargs):
-            if 'letter' in kwargs and 'freq' in kwargs:
-                self.letter = kwargs['letter']
-                self.freq = kwargs['freq']
-                self.left = None
-                self.right = None
-            elif 'left' in kwargs and 'right' in kwargs:
-                self.left = kwargs['left']
-                self.right = kwargs['right']
-                self.freq = 0 if self.left is None or self.right is None else self.left.freq + self.right.freq
-                self.letter = None
-            elif 'letter' in kwargs and 'code' in kwargs:
-                self.left = None
-                self.right = None
-                self.code = kwargs['code']
-                self.letter = kwargs['letter']
 
     def create_huffman_tree(self):
         if len(self.nodes) == 1:
             return
         else:
             self.nodes.sort(key=lambda x: x.freq)
-            parent = Algorythm.Node(left=self.nodes[0], right=self.nodes[1])
+            parent = Compression.Node(left=self.nodes[0], right=self.nodes[1])
             self.nodes.append(parent)
             del self.nodes[0]
             del self.nodes[0]
@@ -54,7 +37,7 @@ class Algorythm:
             raise Exception('There are no nodes to build header!!!')
         head = symbol_codes.getvalue()
         head_encoded = head.encode('utf8')
-        # 4 bytes to store count of header bytes (without self 4 bytes)
+        # 4 bytes to store count of other header bytes (without self 4 bytes)
         tree_info = len(head_encoded)
         info_encoded = tree_info.to_bytes(4, 'big')
         return info_encoded + head_encoded
