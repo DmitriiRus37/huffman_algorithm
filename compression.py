@@ -44,7 +44,7 @@ class Compression:
         return info_encoded + head_encoded
 
     def build_header(self, node: Node, current_header: StringIO):
-        if node.left is None and node.right is None:
+        if node.left == node.right is None:
             current_header.write('1' + node.letter)
         else:
             current_header.write('0')
@@ -57,6 +57,7 @@ class Compression:
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
         arr_header = bytearray(self.add_header_info())
+        # TODO validate header
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
@@ -66,7 +67,13 @@ class Compression:
         self.define_freq(source)
         self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
-        self.create_table_of_codes(self.nodes[0], '')
+        if len(self.char_freq.keys()) == 0:
+            raise Exception('Source file is empty')
+        elif len(self.char_freq.keys()) == 1:
+            self.create_table_of_codes(self.nodes[0], '0')
+        else:
+            self.create_table_of_codes(self.nodes[0], '')
+        # TODO validate table of codes
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
@@ -87,7 +94,7 @@ class Compression:
         print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
     def create_table_of_codes(self, n: Node, code: str):
-        if n.left == n.right:
+        if n.left == n.right is None:
             self.table_of_codes[n.letter] = ''.join(str(x) for x in code)
         else:
             self.create_table_of_codes(n.left, code + '0')
