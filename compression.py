@@ -2,6 +2,8 @@ import os
 from io import StringIO
 import time
 
+from node import Node
+
 
 def add_pad(string: str):
     padding = 8 - len(string) % 8
@@ -10,37 +12,19 @@ def add_pad(string: str):
     return '{0:08b}'.format(padding) + string + '0' * padding
 
 
-class Algorythm:
+class Compression:
 
     def __init__(self):
         self.table_of_codes = {}
         self.char_freq = {}
         self.nodes = []
 
-    class Node:
-        def __init__(self, **kwargs):
-            if 'letter' in kwargs and 'freq' in kwargs:
-                self.letter = kwargs['letter']
-                self.freq = kwargs['freq']
-                self.left = None
-                self.right = None
-            elif 'left' in kwargs and 'right' in kwargs:
-                self.left = kwargs['left']
-                self.right = kwargs['right']
-                self.freq = 0 if self.left is None or self.right is None else self.left.freq + self.right.freq
-                self.letter = None
-            elif 'letter' in kwargs and 'code' in kwargs:
-                self.left = None
-                self.right = None
-                self.code = kwargs['code']
-                self.letter = kwargs['letter']
-
     def create_huffman_tree(self):
         if len(self.nodes) == 1:
             return
         else:
             self.nodes.sort(key=lambda x: x.freq)
-            parent = Algorythm.Node(left=self.nodes[0], right=self.nodes[1])
+            parent = Node(left=self.nodes[0], right=self.nodes[1])
             self.nodes.append(parent)
             del self.nodes[0]
             del self.nodes[0]
@@ -54,7 +38,7 @@ class Algorythm:
             raise Exception('There are no nodes to build header!!!')
         head = symbol_codes.getvalue()
         head_encoded = head.encode('utf8')
-        # 4 bytes to store count of header bytes (without self 4 bytes)
+        # 4 bytes to store count of other header bytes (without self 4 bytes)
         tree_info = len(head_encoded)
         info_encoded = tree_info.to_bytes(4, 'big')
         return info_encoded + head_encoded
@@ -67,12 +51,6 @@ class Algorythm:
             self.build_header(node.left, current_header)
             self.build_header(node.right, current_header)
 
-    def check_right_node(self, node, current_header):
-        if node.letter is None:
-            self.build_header(node, current_header)
-        else:
-            current_header.write('1' + node.letter)
-
     def encode(self, file):
         start_encode_time = time.time()
         bits_io = StringIO()
@@ -83,10 +61,10 @@ class Algorythm:
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
 
-    def compress(self, source, dest):
+    def compress(self, source: str, dest: str):
         start_compress_time = time.time()
         self.define_freq(source)
-        self.nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
+        self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
         self.create_table_of_codes(self.nodes[0], '')
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
@@ -108,7 +86,7 @@ class Algorythm:
         print(f"--- {len(self.char_freq)} different symbols ---")
         print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
-    def create_table_of_codes(self, n, code):
+    def create_table_of_codes(self, n: Node, code: str):
         if n.left == n.right:
             self.table_of_codes[n.letter] = ''.join(str(x) for x in code)
         else:
