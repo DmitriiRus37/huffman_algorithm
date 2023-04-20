@@ -2,3 +2,4 @@ pip==21.3.1
 toml~=0.10.2
 setuptools==59.6.0
 bitstring~=3.1.9
+bitarray~=2.7.3
