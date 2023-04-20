@@ -2,6 +2,8 @@ import os
 import time
 from io import StringIO
 
+from bitarray import bitarray
+
 from node import Node
 
 
@@ -19,7 +21,6 @@ class Decompression:
 
     def decompress(self, source: str, dest: str):
         start_decompress_time = time.time()
-        file_str = StringIO()
         with open(source, "rb") as f:
             header = self.read_header(f)
             header = self.WrapValue(header)
@@ -30,13 +31,9 @@ class Decompression:
             else:
                 self.restore_tree(root_node, header, '')
             start_read_bytes_time = time.time()
-            byte = f.read(1)
-            while len(byte) > 0:
-                byte = ord(byte)
-                bits = bin(byte)[2:].rjust(8, '0')
-                file_str.write(bits)
-                byte = f.read(1)
-        self.bit_string = file_str.getvalue()
+            bit_array = bitarray()
+            bit_array.fromfile(f)
+        self.bit_string = bit_array.to01()
         print(f"--- {time.time() - start_read_bytes_time} seconds to read all bytes from file ---")
         self.remove_padding()
         self.decode(dest)
