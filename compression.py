@@ -37,6 +37,7 @@ class Compression:
         else:
             raise Exception('There are no nodes to build header!!!')
         head = symbol_codes.getvalue()
+        self.validate_header(head)
         head_encoded = head.encode('utf8')
         # 4 bytes to store count of other header bytes (without self 4 bytes)
         tree_info = len(head_encoded)
@@ -61,6 +62,17 @@ class Compression:
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
+
+    def validate_header(self, header):
+        unique_symbols = len(self.char_freq.keys())
+        zeros_count = unique_symbols - 1
+        ones_count = unique_symbols
+        if self.char_freq.keys().__contains__('0'):
+            zeros_count += 1
+        if self.char_freq.keys().__contains__('1'):
+            ones_count += 1
+        if header.count('1') != ones_count or header.count('0') != zeros_count:
+            raise Exception('header is invalid')
 
     def compress(self, source: str, dest: str):
         start_compress_time = time.time()
