@@ -6,7 +6,6 @@ import decompression
 
 
 def main():
-
     if sys.argv[1] == 'decode':
         dec = decompression.Algorythm()
         source_path = os.path.abspath(sys.argv[2])
@@ -19,4 +18,5 @@ def main():
         c.compress(source_path, dest_path)
 
 
-main()
+if __name__ == "__main__":
+    main()

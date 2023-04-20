@@ -21,23 +21,35 @@ Compressed binary string consists of:
 
 
 You can check:
+`
+python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
+python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res && 
+rm tests/test_files/test2_enc tests/test_files/test2_res
+`
+--- 189 different symbols ---
+--- 1.6713712215423584 seconds to define symbols frequency ---
+--- 3.348515033721924 seconds to encode file ---
+--- 5.04868221282959 seconds to compress file ---
+--- Compression: 55.02 % ---
+--- 3.814774751663208 seconds to read all bytes from file ---
+--- 6.650456666946411 seconds to decode file and write it to dest ---
+--- 10.486353397369385 seconds to decompress ---
+--- Compression: 55.02 % ---
 
-`python3 main.py files/test2.xml files/test2_enc && python3 main.py decode files/test2_enc files/res`
---- 1.2671279907226562 seconds to define symbols frequency ---
---- 2.659576416015625 seconds to encode file ---
---- 3.9388046264648438 seconds to compress file ---
---- 2.7043514251708984 seconds to read all bytes from file ---
---- 4.853003740310669 seconds to decode file and write it to dest ---
---- 7.579028844833374 seconds to decompress ---
-
-`cat files/test2.xml > files/test2_tmp && cat files/test2.xml >> files/test2_tmp && cat files/test2.xml >> files/test2_tmp  &&
-python3 main.py files/test2_tmp files/test2_enc && python3 main.py decode files/test2_enc files/res`
---- 3.7675156593322754 seconds to define symbols frequency ---
---- 7.57596492767334 seconds to encode file ---
---- 11.397843837738037 seconds to compress file ---
---- 8.554822444915771 seconds to read all bytes from file ---
---- 14.326249837875366 seconds to decode file and write it to dest ---
---- 22.937246322631836 seconds to decompress ---
-
- 
-
+`
+cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
+cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 
+cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml  && 
+python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
+python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
+rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
+`
+--- 189 different symbols ---
+--- 5.279628038406372 seconds to define symbols frequency ---
+--- 10.481949806213379 seconds to encode file ---
+--- 15.796982765197754 seconds to compress file ---
+--- Compression: 55.02 % ---
+--- 11.384727239608765 seconds to read all bytes from file ---
+--- 20.392462968826294 seconds to decode file and write it to dest ---
+--- 31.833117961883545 seconds to decompress ---
+--- Compression: 55.02 % ---
