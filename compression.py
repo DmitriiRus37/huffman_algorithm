@@ -61,7 +61,7 @@ class Compression:
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
 
-    def compress(self, source, dest):
+    def compress(self, source: str, dest: str):
         start_compress_time = time.time()
         self.define_freq(source)
         self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
@@ -86,7 +86,7 @@ class Compression:
         print(f"--- {len(self.char_freq)} different symbols ---")
         print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
-    def create_table_of_codes(self, n, code):
+    def create_table_of_codes(self, n: Node, code: str):
         if n.left == n.right:
             self.table_of_codes[n.letter] = ''.join(str(x) for x in code)
         else:

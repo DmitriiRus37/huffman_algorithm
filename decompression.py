@@ -1,7 +1,7 @@
 import os
-from io import StringIO
 import time
-import compression
+from io import StringIO
+
 from node import Node
 
 
@@ -68,13 +68,13 @@ class Decompression:
         else:
             raise Exception("Here must be a '0' or '1', not a letter")
 
-    def read_header(self, f):
-        header_bytes = int(process_4_bytes(f), 2)
+    def read_header(self, file):
+        header_bytes = int(process_4_bytes(file), 2)
         header_bytes = self.WrapValue(header_bytes)
-        ba = read_bytes_to_bytearray(header_bytes.val, f)
+        ba = read_bytes_to_bytearray(header_bytes.val, file)
         return ba.decode('utf8', errors='strict')
 
-    def decode(self, dest):
+    def decode(self, dest: str):
         start_decode_time = time.time()
         current_code = ''
         file_str = StringIO()
