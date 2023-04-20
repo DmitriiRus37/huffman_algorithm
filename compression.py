@@ -101,11 +101,12 @@ class Compression:
 
     def define_freq(self, path: str):
         start_define_freq_time = time.time()
-        d = self.char_freq
         with open(path, "r") as f:
             for line in f:
                 for ch in list(line):
-                    d[ch] = d[ch] + 1 if ch in d.keys() else 1
+                    self.char_freq[ch] = self.char_freq[ch] + 1 if ch in self.char_freq.keys() else 1
+        if len(self.char_freq) == 0:
+            raise Exception("file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
         print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
