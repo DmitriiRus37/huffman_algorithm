@@ -10,8 +10,9 @@ class TestApp(unittest.TestCase):
 
     def test_1(self):
         original_file_name = 'test_files/test1.txt'
-
         compressed_file_name = 'tmp_files/test1_zip'
+        decompressed_file_name = 'tmp_files/test1_res.txt'
+
         compress_args = [
             "",
             original_file_name,
@@ -20,7 +21,6 @@ class TestApp(unittest.TestCase):
         with unittest.mock.patch('sys.argv', compress_args):
             main.main()
 
-        decompressed_file_name = 'tmp_files/test1_res.txt'
         decompress_args = [
             "",
             "decode",
