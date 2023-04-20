@@ -2,6 +2,8 @@ import os
 from io import StringIO
 import time
 
+from node import Node
+
 
 def add_pad(string: str):
     padding = 8 - len(string) % 8
@@ -17,13 +19,12 @@ class Compression:
         self.char_freq = {}
         self.nodes = []
 
-
     def create_huffman_tree(self):
         if len(self.nodes) == 1:
             return
         else:
             self.nodes.sort(key=lambda x: x.freq)
-            parent = Compression.Node(left=self.nodes[0], right=self.nodes[1])
+            parent = Node(left=self.nodes[0], right=self.nodes[1])
             self.nodes.append(parent)
             del self.nodes[0]
             del self.nodes[0]
@@ -50,12 +51,6 @@ class Compression:
             self.build_header(node.left, current_header)
             self.build_header(node.right, current_header)
 
-    def check_right_node(self, node, current_header):
-        if node.letter is None:
-            self.build_header(node, current_header)
-        else:
-            current_header.write('1' + node.letter)
-
     def encode(self, file):
         start_encode_time = time.time()
         bits_io = StringIO()
@@ -69,7 +64,7 @@ class Compression:
     def compress(self, source, dest):
         start_compress_time = time.time()
         self.define_freq(source)
-        self.nodes = [self.Node(letter=k, freq=v) for k, v in self.char_freq.items()]
+        self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
         self.create_table_of_codes(self.nodes[0], '')
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
