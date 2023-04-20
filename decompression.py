@@ -1,5 +1,3 @@
-import os
-import time
 from io import StringIO
 
 from bitarray import bitarray
@@ -37,20 +35,9 @@ class Decompression:
 
     @print_time_spent(message="to decompress")
     def decompress(self, source: str, dest: str):
-        self.read_from_file(source)
         self.bit_string = self.read_from_file(source).to01()
         self.remove_padding()
         self.decode(dest)
-
-    def decompress_info(self, source: str, dest: str):
-        self.decompress(source, dest)
-        input_size = os.path.getsize(source)
-        output_size = os.path.getsize(dest)
-        if output_size != 0:
-            compress_percent = "{:.2f}".format(input_size / output_size * 100)
-            print(f"--- Compression: {compress_percent} % ---")
-        else:
-            raise Exception("output_size is empty")
 
     def set_letter_to_a_node(self, node: Node, letter: str, code: str):
         node.letter = letter

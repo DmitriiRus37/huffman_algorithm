@@ -1,6 +1,4 @@
-import os
 from io import StringIO
-import time
 
 from helpers import print_time_spent
 from node import Node
@@ -88,10 +86,6 @@ class Compression:
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
-        input_size = os.path.getsize(source)
-        output_size = os.path.getsize(dest)
-        compress_percent = "{:.2f}".format(output_size / input_size * 100)
-        print(f"--- Compression: {compress_percent} % ---")
 
     def validate_table_of_codes(self):
         for key, value in self.table_of_codes.items():
