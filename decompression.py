@@ -25,8 +25,10 @@ class Decompression:
             header = self.WrapValue(header)
             root_node = Node(left=None, right=None)
             self.nodes.append(root_node)
-            self.restore_tree(root_node, header, '')
-
+            if len(header.val) == 2:
+                self.restore_tree(root_node, header, '0')
+            else:
+                self.restore_tree(root_node, header, '')
             start_read_bytes_time = time.time()
             byte = f.read(1)
             while len(byte) > 0:
@@ -41,8 +43,11 @@ class Decompression:
         print(f"--- {time.time() - start_decompress_time} seconds to decompress ---")
         input_size = os.path.getsize(source)
         output_size = os.path.getsize(dest)
-        compress_percent = "{:.2f}".format(input_size / output_size * 100)
-        print(f"--- Compression: {compress_percent} % ---")
+        if output_size != 0:
+            compress_percent = "{:.2f}".format(input_size / output_size * 100)
+            print(f"--- Compression: {compress_percent} % ---")
+        else:
+            raise Exception("output_size is empty")
 
     def set_letter_to_a_node(self, node: Node, letter: str, code: str):
         node.letter = letter

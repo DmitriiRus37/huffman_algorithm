@@ -37,6 +37,7 @@ class Compression:
         else:
             raise Exception('There are no nodes to build header!!!')
         head = symbol_codes.getvalue()
+        self.validate_header(head)
         head_encoded = head.encode('utf8')
         # 4 bytes to store count of other header bytes (without self 4 bytes)
         tree_info = len(head_encoded)
@@ -44,7 +45,7 @@ class Compression:
         return info_encoded + head_encoded
 
     def build_header(self, node: Node, current_header: StringIO):
-        if node.left is None and node.right is None:
+        if node.left == node.right is None:
             current_header.write('1' + node.letter)
         else:
             current_header.write('0')
@@ -61,12 +62,29 @@ class Compression:
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
 
+    def validate_header(self, header):
+        unique_symbols = len(self.char_freq.keys())
+        zeros_count = unique_symbols - 1
+        ones_count = unique_symbols
+        if self.char_freq.keys().__contains__('0'):
+            zeros_count += 1
+        if self.char_freq.keys().__contains__('1'):
+            ones_count += 1
+        if header.count('1') != ones_count or header.count('0') != zeros_count:
+            raise Exception('header is invalid')
+
     def compress(self, source: str, dest: str):
         start_compress_time = time.time()
         self.define_freq(source)
         self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
-        self.create_table_of_codes(self.nodes[0], '')
+        if len(self.char_freq.keys()) == 0:
+            raise Exception('Source file is empty')
+        elif len(self.char_freq.keys()) == 1:
+            self.create_table_of_codes(self.nodes[0], '0')
+        else:
+            self.create_table_of_codes(self.nodes[0], '')
+        self.validate_table_of_codes()
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
@@ -75,6 +93,11 @@ class Compression:
         output_size = os.path.getsize(dest)
         compress_percent = "{:.2f}".format(output_size / input_size * 100)
         print(f"--- Compression: {compress_percent} % ---")
+
+    def validate_table_of_codes(self):
+        for key, value in self.table_of_codes.items():
+            if value == '':
+                raise Exception('symbol \"'+key+'\" doesn\'t have a code')
 
     def define_freq(self, path: str):
         start_define_freq_time = time.time()
@@ -87,7 +110,7 @@ class Compression:
         print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
     def create_table_of_codes(self, n: Node, code: str):
-        if n.left == n.right:
+        if n.left == n.right is None:
             self.table_of_codes[n.letter] = ''.join(str(x) for x in code)
         else:
             self.create_table_of_codes(n.left, code + '0')
