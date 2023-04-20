@@ -58,7 +58,6 @@ class Compression:
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
         arr_header = bytearray(self.add_header_info())
-        # TODO validate header
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
@@ -85,7 +84,7 @@ class Compression:
             self.create_table_of_codes(self.nodes[0], '0')
         else:
             self.create_table_of_codes(self.nodes[0], '')
-        # TODO validate table of codes
+        self.validate_table_of_codes()
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
@@ -94,6 +93,11 @@ class Compression:
         output_size = os.path.getsize(dest)
         compress_percent = "{:.2f}".format(output_size / input_size * 100)
         print(f"--- Compression: {compress_percent} % ---")
+
+    def validate_table_of_codes(self):
+        for key, value in self.table_of_codes.items():
+            if value == '':
+                raise Exception('symbol \"'+key+'\" doesn\'t have a code')
 
     def define_freq(self, path: str):
         start_define_freq_time = time.time()
