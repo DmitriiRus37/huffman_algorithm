@@ -27,7 +27,13 @@ class Algorythm:
             elif 'left' in kwargs and 'right' in kwargs:
                 self.left = kwargs['left']
                 self.right = kwargs['right']
-                self.freq = self.left.freq + self.right.freq
+                self.freq = 0 if self.left is None or self.right is None else self.left.freq + self.right.freq
+                self.letter = None
+            elif 'letter' in kwargs and 'code' in kwargs:
+                self.left = None
+                self.right = None
+                self.code = kwargs['code']
+                self.letter = kwargs['letter']
 
     def create_huffman_tree(self):
         if len(self.nodes) == 1:
@@ -40,32 +46,42 @@ class Algorythm:
             del self.nodes[0]
             self.create_huffman_tree()
 
-    def add_header_info(self, string):
-        alphabet_length = len(self.table_of_codes.keys())
+    def add_header_info(self):
+        symbol_codes = StringIO()
+        if self.nodes[0] is not None:
+            self.build_header(self.nodes[0], symbol_codes)
+        else:
+            raise Exception('There are no nodes to build header!!!')
+        head = symbol_codes.getvalue()
+        head_encoded = head.encode('utf8')
+        # 4 bytes to store count of header bytes (without self 4 bytes)
+        tree_info = len(head_encoded)
+        info_encoded = tree_info.to_bytes(4, 'big')
+        return info_encoded + head_encoded
 
-        # 4 bytes to store count of symbols in alphabet
-        info = '{0:32b}'.format(alphabet_length).replace(' ', '0')
+    def build_header(self, node: Node, current_header: StringIO):
+        if node.left is None and node.right is None:
+            current_header.write('1' + node.letter)
+        else:
+            current_header.write('0')
+            self.build_header(node.left, current_header)
+            self.build_header(node.right, current_header)
 
-        # 4 bytes for every symbol
-        # 4 bytes for every symbol code (there is '1' before every symbol code)
-        # for exemaple: code is '0001'; it will be '10001'
-        # (symbol_1, symbol_2, symbol_n) (code_1, code_2, code_n)
-        symbols = ''
-        symbol_codes = ''
-        for k, v in self.table_of_codes.items():
-            symbols += '{0:32b}'.format(ord(k)).replace(' ', '0')
-            symbol_codes += ('1' + v).rjust(32, '0')
-        return info + symbols + symbol_codes + string
+    def check_right_node(self, node, current_header):
+        if node.letter is None:
+            self.build_header(node, current_header)
+        else:
+            current_header.write('1' + node.letter)
 
     def encode(self, file):
         start_encode_time = time.time()
         bits_io = StringIO()
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
-        bits = self.add_header_info(bits)
+        arr_header = bytearray(self.add_header_info())
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
         print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
-        return b_arr
+        return arr_header + b_arr
 
     def compress(self, source, dest):
         start_compress_time = time.time()
