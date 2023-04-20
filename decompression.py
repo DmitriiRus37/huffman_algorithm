@@ -4,6 +4,7 @@ from io import StringIO
 
 from bitarray import bitarray
 
+from helpers import print_time_spent
 from node import Node
 
 
@@ -19,9 +20,9 @@ class Decompression:
         def __init__(self, val):
             self.val = val
 
-    def decompress(self, source: str, dest: str):
-        start_decompress_time = time.time()
-        with open(source, "rb") as f:
+    @print_time_spent(message="to read all bytes from file")
+    def read_from_file(self, file_name: str) -> bitarray:
+        with open(file_name, "rb") as f:
             header = self.read_header(f)
             header = self.WrapValue(header)
             root_node = Node(left=None, right=None)
@@ -30,14 +31,19 @@ class Decompression:
                 self.restore_tree(root_node, header, '0')
             else:
                 self.restore_tree(root_node, header, '')
-            start_read_bytes_time = time.time()
             bit_array = bitarray()
             bit_array.fromfile(f)
-        self.bit_string = bit_array.to01()
-        print(f"--- {time.time() - start_read_bytes_time} seconds to read all bytes from file ---")
+            return bit_array
+
+    @print_time_spent(message="to decompress")
+    def decompress(self, source: str, dest: str):
+        self.read_from_file(source)
+        self.bit_string = self.read_from_file(source).to01()
         self.remove_padding()
         self.decode(dest)
-        print(f"--- {time.time() - start_decompress_time} seconds to decompress ---")
+
+    def decompress_info(self, source: str, dest: str):
+        self.decompress(source, dest)
         input_size = os.path.getsize(source)
         output_size = os.path.getsize(dest)
         if output_size != 0:
@@ -76,8 +82,8 @@ class Decompression:
         ba = read_bytes_to_bytearray(header_bytes.val, file)
         return ba.decode('utf8', errors='strict')
 
+    @print_time_spent(message="to decode file and write it to dest")
     def decode(self, dest: str):
-        start_decode_time = time.time()
         current_code = ''
         file_str = StringIO()
         for bit in self.bit_string:
@@ -88,7 +94,6 @@ class Decompression:
                 current_code = ''
         with open(dest, "w") as f:
             f.write(file_str.getvalue())
-        print(f"--- {time.time() - start_decode_time} seconds to decode file and write it to dest ---")
 
     def remove_padding(self):
         byte = self.bit_string[:8]

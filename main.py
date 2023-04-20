@@ -10,7 +10,7 @@ def main():
         source_path = os.path.abspath(sys.argv[2])
         dest_path = os.path.abspath(sys.argv[3])
         dec = Decompression()
-        dec.decompress(source_path, dest_path)
+        dec.decompress_info(source_path, dest_path)
     else:
         source_path = os.path.abspath(sys.argv[1])
         dest_path = os.path.abspath(sys.argv[2])

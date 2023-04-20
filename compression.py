@@ -2,6 +2,7 @@ import os
 from io import StringIO
 import time
 
+from helpers import print_time_spent
 from node import Node
 
 
@@ -52,14 +53,13 @@ class Compression:
             self.build_header(node.left, current_header)
             self.build_header(node.right, current_header)
 
+    @print_time_spent(message="to encode file")
     def encode(self, file):
-        start_encode_time = time.time()
         bits_io = StringIO()
         [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
         bits = add_pad(bits_io.getvalue())
         arr_header = bytearray(self.add_header_info())
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
-        print(f"--- {time.time() - start_encode_time} seconds to encode file ---")
         return arr_header + b_arr
 
     def validate_header(self, header):
@@ -73,8 +73,8 @@ class Compression:
         if header.count('1') != ones_count or header.count('0') != zeros_count:
             raise Exception('header is invalid')
 
+    @print_time_spent(message="to compress file")
     def compress(self, source: str, dest: str):
-        start_compress_time = time.time()
         self.define_freq(source)
         self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
@@ -88,7 +88,6 @@ class Compression:
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
-        print(f"--- {time.time() - start_compress_time} seconds to compress file ---")
         input_size = os.path.getsize(source)
         output_size = os.path.getsize(dest)
         compress_percent = "{:.2f}".format(output_size / input_size * 100)
@@ -99,8 +98,8 @@ class Compression:
             if value == '':
                 raise Exception('symbol \"'+key+'\" doesn\'t have a code')
 
+    @print_time_spent(message="to define symbols frequency")
     def define_freq(self, path: str):
-        start_define_freq_time = time.time()
         with open(path, "r") as f:
             for line in f:
                 for ch in list(line):
@@ -108,7 +107,6 @@ class Compression:
         if len(self.char_freq) == 0:
             raise Exception("file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
-        print(f"--- {time.time() - start_define_freq_time} seconds to define symbols frequency ---")
 
     def create_table_of_codes(self, n: Node, code: str):
         if n.left == n.right is None:
