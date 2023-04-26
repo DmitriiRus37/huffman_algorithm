@@ -76,9 +76,7 @@ class Compression:
         self.define_freq(source)
         self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
-        if len(self.char_freq.keys()) == 0:
-            raise Exception('Source file is empty')
-        elif len(self.char_freq.keys()) == 1:
+        if len(self.char_freq.keys()) == 1:
             self.create_table_of_codes(self.nodes[0], '0')
         else:
             self.create_table_of_codes(self.nodes[0], '')
@@ -99,7 +97,7 @@ class Compression:
                 for ch in list(line):
                     self.char_freq[ch] = self.char_freq[ch] + 1 if ch in self.char_freq.keys() else 1
         if len(self.char_freq) == 0:
-            raise Exception("file is empty")
+            raise Exception("Source file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
 
     def create_table_of_codes(self, n: Node, code: str):
