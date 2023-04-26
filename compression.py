@@ -1,3 +1,4 @@
+import os
 from io import StringIO
 
 from helpers import print_time_spent
@@ -88,12 +89,20 @@ class Compression:
     def validate_table_of_codes(self):
         for key, value in self.table_of_codes.items():
             if value == '':
-                raise Exception('symbol \"'+key+'\" doesn\'t have a code')
+                raise Exception('symbol \"' + key + '\" doesn\'t have a code')
 
     @print_time_spent(message="to define symbols frequency")
     def define_freq(self, path: str):
         with open(path, "r") as f:
+            line_num = 0
+            bytes_size_mb = 0
+            bytes_total_mb = "{:.3f}".format(os.path.getsize(path) / 1024 / 1024)
             for line in f:
+                line_num += 1
+                bytes_size_mb += len(line.encode('utf-8'))
+                info = f'Line number while calculating frequency: {line_num}.\t' \
+                       f'Already have read: {"{:.3f}".format(bytes_size_mb // 1024 / 1024)} Mb from {bytes_total_mb} Mb of source file'
+                print(info, end='\r')
                 for ch in list(line):
                     self.char_freq[ch] = self.char_freq[ch] + 1 if ch in self.char_freq.keys() else 1
         if len(self.char_freq) == 0:
