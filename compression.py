@@ -12,6 +12,10 @@ def add_pad(string: str):
     return '{0:08b}'.format(padding) + string + '0' * padding
 
 
+def get_info(now_size, total_size):
+    print(f"Already read: {now_size} Mb from {total_size} Mb of source file", end='\r')
+
+
 class Compression:
 
     def __init__(self):
@@ -96,13 +100,11 @@ class Compression:
         with open(path, "r") as f:
             line_num = 0
             bytes_size_mb = 0
-            bytes_total_mb = "{:.3f}".format(os.path.getsize(path) / 1024 / 1024)
+            bytes_total_mb = f'{os.path.getsize(path) / 1024 / 1024:.3f}'
             for line in f:
                 line_num += 1
-                bytes_size_mb += len(line.encode('utf-8'))
-                info = f'Line number while calculating frequency: {line_num}.\t' \
-                       f'Already have read: {"{:.3f}".format(bytes_size_mb // 1024 / 1024)} Mb from {bytes_total_mb} Mb of source file'
-                print(info, end='\r')
+                bytes_size_mb += len(line.encode('utf-8')) / 1024 / 1024
+                get_info("{:.3f}".format(bytes_size_mb), bytes_total_mb)
                 for ch in list(line):
                     self.char_freq[ch] = self.char_freq[ch] + 1 if ch in self.char_freq.keys() else 1
         if len(self.char_freq) == 0:
