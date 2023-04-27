@@ -1,6 +1,7 @@
 # huffman_algorithm
 
 [//]: # (TODO: how to work with files > 1Gb, e.g. 20 Gb)
+[//]: # (TODO: add ProgressBar)
 
 Compressed binary string consists of:
 1. header:
@@ -59,3 +60,27 @@ rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/te
 --- 21.67078685760498 seconds to decode file and write it to dest ---
 --- 22.08542490005493 seconds to decompress ---
 --- Compression: 55.02 % ---
+
+cat tests/test_files/test2.xml > tests/test_files/test2_tmp1.xml && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  &&
+rm tests/test_files/test2_tmp2.xml &&
+mv tests/test_files/test2_tmp1.xml tests/test_files/test2_tmp.xml &&
+du -h tests/test_files/test2_tmp.xml &&
+python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
+python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
+rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
