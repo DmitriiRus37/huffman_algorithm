@@ -1,5 +1,7 @@
 # huffman_algorithm
 
+[//]: # (TODO: how to work with files > 1Gb, e.g. 20 Gb)
+
 Compressed binary string consists of:
 1. header:
    a) count of bytes UTF-8 encoded of rest of header
@@ -57,4 +59,3 @@ rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/te
 --- 21.67078685760498 seconds to decode file and write it to dest ---
 --- 22.08542490005493 seconds to decompress ---
 --- Compression: 55.02 % ---
-
