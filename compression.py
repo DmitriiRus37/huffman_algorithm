@@ -93,11 +93,8 @@ class Compression:
     @print_time_spent(message="to define symbols frequency")
     def define_freq(self, path: str):
         with open(path, "r") as f:
-            line_num = 0
-            mbytes_total = f'{os.path.getsize(path) / 1024 / 1024:.1f}'
-            pbar = tqdm(total=float(mbytes_total), unit="Mb", unit_scale=True, desc="Read to define frequency")
+            pbar = tqdm(total=float(os.path.getsize(path) / 1024 / 1024), unit="Mb", unit_scale=True, desc="Read to define frequency")
             for line in f:
-                line_num += 1
                 for ch in list(line):
                     self.char_freq.setdefault(ch, 0)
                     self.char_freq[ch] += 1
