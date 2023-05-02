@@ -1,8 +1,5 @@
 # huffman_algorithm
 
-[//]: # (TODO: how to work with files > 1Gb, e.g. 20 Gb)
-[//]: # (TODO: add ProgressBar)
-
 Compressed binary string consists of:
 1. header:
    a) count of bytes UTF-8 encoded of rest of header
@@ -19,17 +16,17 @@ chmod +x ./venv/bin/activate &&
 ./venv/bin/pip install -r requirements.txt
 `
 4.
-   a) `python3 main.py *source_path* *dest_path*` to encode;   
+   a) `venv/bin/python3 main.py *source_path* *dest_path*` to encode;   
    or   
-   b) `python3 main.py decode *source_path* *dest_path*` to decode;
+   b) `venv/bin/python3 main.py decode *source_path* *dest_path*` to decode;
 
 
 
 
 You can check:
 `
-python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
-python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res && 
+venv/bin/python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
+venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res && 
 rm tests/test_files/test2_enc tests/test_files/test2_res
 `
 --- 189 different symbols ---
@@ -47,8 +44,8 @@ rm tests/test_files/test2_enc tests/test_files/test2_res
 cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml  && 
-python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
-python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
+venv/bin/python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
+venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
 rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
 `
 --- 189 different symbols ---
@@ -61,26 +58,3 @@ rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/te
 --- 22.08542490005493 seconds to decompress ---
 --- Compression: 55.02 % ---
 
-cat tests/test_files/test2.xml > tests/test_files/test2_tmp1.xml && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  &&
-rm tests/test_files/test2_tmp2.xml &&
-mv tests/test_files/test2_tmp1.xml tests/test_files/test2_tmp.xml &&
-du -h tests/test_files/test2_tmp.xml &&
-python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
-python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
-rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml

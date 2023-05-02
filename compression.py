@@ -1,19 +1,14 @@
 import os
 from io import StringIO
-
 from helpers import print_time_spent
 from node import Node
-
+from tqdm import tqdm
 
 def add_pad(string: str):
     padding = 8 - len(string) % 8
     if padding == 8:
         padding = 0
     return '{0:08b}'.format(padding) + string + '0' * padding
-
-
-def get_info(now_size, total_size):
-    print(f"Already read: {now_size} Mb from {total_size} Mb of source file", end='\r')
 
 
 class Compression:
@@ -99,15 +94,15 @@ class Compression:
     def define_freq(self, path: str):
         with open(path, "r") as f:
             line_num = 0
-            bytes_size_mb = 0
-            bytes_total_mb = f'{os.path.getsize(path) / 1024 / 1024:.3f}'
+            mbytes_total = f'{os.path.getsize(path) / 1024 / 1024:.1f}'
+            pbar = tqdm(total=float(mbytes_total), unit="Mb", unit_scale=True, desc="Read to define frequency")
             for line in f:
                 line_num += 1
-                bytes_size_mb += len(line.encode('utf-8')) / 1024 / 1024
-                get_info("{:.3f}".format(bytes_size_mb), bytes_total_mb)
                 for ch in list(line):
                     self.char_freq.setdefault(ch, 0)
                     self.char_freq[ch] += 1
+                mbytes_read = len(line.encode('utf-8')) / 1024 / 1024
+                pbar.update(mbytes_read)
         if len(self.char_freq) == 0:
             raise Exception("Source file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
