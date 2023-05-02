@@ -1,5 +1,8 @@
 # huffman_algorithm
 
+[//]: # (TODO: how to work with files > 1Gb, e.g. 20 Gb)
+[//]: # (TODO: add ProgressBar)
+
 Compressed binary string consists of:
 1. header:
    a) count of bytes UTF-8 encoded of rest of header
@@ -13,7 +16,7 @@ Compressed binary string consists of:
 python3 -m venv venv && 
 chmod +x ./venv/bin/activate && 
 ./venv/bin/activate && 
-pip install -r requirements.txt
+./venv/bin/pip install -r requirements.txt
 `
 4.
    a) `python3 main.py *source_path* *dest_path*` to encode;   
@@ -58,3 +61,26 @@ rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/te
 --- 22.08542490005493 seconds to decompress ---
 --- Compression: 55.02 % ---
 
+cat tests/test_files/test2.xml > tests/test_files/test2_tmp1.xml && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
+cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  &&
+rm tests/test_files/test2_tmp2.xml &&
+mv tests/test_files/test2_tmp1.xml tests/test_files/test2_tmp.xml &&
+du -h tests/test_files/test2_tmp.xml &&
+python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
+python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
+rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
