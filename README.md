@@ -16,7 +16,7 @@ Compressed binary string consists of:
 python3 -m venv venv && 
 chmod +x ./venv/bin/activate && 
 ./venv/bin/activate && 
-pip install -r requirements.txt
+./venv/bin/pip install -r requirements.txt
 `
 4.
    a) `python3 main.py *source_path* *dest_path*` to encode;   
