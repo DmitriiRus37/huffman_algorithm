@@ -106,7 +106,8 @@ class Compression:
                 bytes_size_mb += len(line.encode('utf-8')) / 1024 / 1024
                 get_info("{:.3f}".format(bytes_size_mb), bytes_total_mb)
                 for ch in list(line):
-                    self.char_freq[ch] = self.char_freq[ch] + 1 if ch in self.char_freq.keys() else 1
+                    self.char_freq.setdefault(ch, 0)
+                    self.char_freq[ch] += 1
         if len(self.char_freq) == 0:
             raise Exception("Source file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
