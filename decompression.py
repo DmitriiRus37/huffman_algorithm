@@ -2,7 +2,7 @@ from io import StringIO
 
 from bitarray import bitarray
 
-from helpers import print_time_spent
+from helpers import print_time_spent, WrapValue
 from node import Node
 
 
@@ -14,15 +14,11 @@ class Decompression:
         self.nodes = []
         self.table_of_codes = {}
 
-    class WrapValue:
-        def __init__(self, val):
-            self.val = val
-
     @print_time_spent(message="to read all bytes from file")
     def read_from_file(self, file_name: str) -> bitarray:
         with open(file_name, "rb") as f:
             header = self.read_header(f)
-            header = self.WrapValue(header)
+            header = WrapValue(header)
             root_node = Node(left=None, right=None)
             self.nodes.append(root_node)
             if len(header.val) == 2:
@@ -63,9 +59,10 @@ class Decompression:
         else:
             raise Exception("Here must be a '0' or '1', not a letter")
 
-    def read_header(self, file):
+    @staticmethod
+    def read_header(file):
         header_bytes = int(process_4_bytes(file), 2)
-        header_bytes = self.WrapValue(header_bytes)
+        header_bytes = WrapValue(header_bytes)
         ba = read_bytes_to_bytearray(header_bytes.val, file)
         return ba.decode('utf8', errors='strict')
 

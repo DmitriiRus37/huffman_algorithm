@@ -4,6 +4,7 @@ from helpers import print_time_spent
 from node import Node
 from tqdm import tqdm
 
+
 def add_pad(string: str):
     padding = (8 - len(string) % 8) % 8
     return '{0:08b}'.format(padding) + string + '0' * padding
@@ -91,7 +92,9 @@ class Compression:
     @print_time_spent(message="to define symbols frequency")
     def define_freq(self, path: str):
         with open(path, "r") as f:
-            pbar = tqdm(total=float(os.path.getsize(path) / 1024 / 1024), unit="Mb", unit_scale=True, desc="Read to define frequency")
+            pbar = tqdm(total=float(os.path.getsize(path) / 1024 / 1024),
+                        unit="Mb", unit_scale=True,
+                        desc="Read to define frequency")
             for line in f:
                 for ch in list(line):
                     self.char_freq.setdefault(ch, 0)

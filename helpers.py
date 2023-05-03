@@ -18,3 +18,7 @@ def get_compression_info(s, d):
     output_size = os.path.getsize(d)
     compress_percent = "{:.2f}".format(output_size / input_size * 100)
     print(f"--- Compression: {compress_percent} % ---")
+
+class WrapValue:
+    def __init__(self, val):
+        self.val = val
