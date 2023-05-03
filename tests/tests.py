@@ -1,6 +1,4 @@
-import filecmp
 import os
-import sys
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -28,7 +26,8 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
     ]
     with patch('sys.argv', decompress_args):
         main.main()
-    assert filecmp.cmp(original_file_name, decompressed_file_name)
+    with open(original_file_name, encoding="utf-8") as f1, open(decompressed_file_name, encoding="utf-8") as f2:
+        assert f1.read() == f2.read()
     os.remove(compressed_file_name)
     os.remove(decompressed_file_name)
 
