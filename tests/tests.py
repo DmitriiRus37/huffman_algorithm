@@ -1,5 +1,6 @@
 import filecmp
 import os
+import sys
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -72,3 +73,9 @@ class TestApp(TestCase):
         decompressed_file_name = 'tmp_files/test5_res.xml'
         common(original_file_name, compressed_file_name, decompressed_file_name)
         os.remove(original_file_name)
+
+    def test_6(self):
+        original_file_name = 'test_files/test6.txt'
+        compressed_file_name = 'tmp_files/test6_zip'
+        decompressed_file_name = 'tmp_files/test6_res.txt'
+        common(original_file_name, compressed_file_name, decompressed_file_name)
