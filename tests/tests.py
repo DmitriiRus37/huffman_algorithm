@@ -1,7 +1,6 @@
 import filecmp
 import os
-import shutil
-import unittest
+from unittest import TestCase
 from unittest.mock import patch
 
 import main
@@ -17,7 +16,7 @@ def get_args(original_file_name, compressed_file_name):
 
 def common(original_file_name, compressed_file_name, decompressed_file_name):
     compress_args = get_args(original_file_name, compressed_file_name)
-    with unittest.mock.patch('sys.argv', compress_args):
+    with patch('sys.argv', compress_args):
         main.main()
 
     decompress_args = [
@@ -26,14 +25,14 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
         compressed_file_name,
         decompressed_file_name
     ]
-    with unittest.mock.patch('sys.argv', decompress_args):
+    with patch('sys.argv', decompress_args):
         main.main()
     assert filecmp.cmp(original_file_name, decompressed_file_name)
     os.remove(compressed_file_name)
     os.remove(decompressed_file_name)
 
 
-class TestApp(unittest.TestCase):
+class TestApp(TestCase):
     # Ran 5 tests in 19.720s
 
     def test_1(self):
@@ -63,9 +62,11 @@ class TestApp(unittest.TestCase):
     def test_5(self):
         extended_file_name = 'test_files/test2.xml'
         original_file_name = 'test_files/test5.xml'
-        shutil.copyfile(extended_file_name, original_file_name)
-        shutil.copyfile(extended_file_name, original_file_name)
-        shutil.copyfile(extended_file_name, original_file_name)
+        os.remove(original_file_name)
+        with open(extended_file_name, "r") as file1, open(original_file_name, "a") as file2:
+            data = file1.read()
+            for i in range(5):
+                file2.write(data)
         compressed_file_name = 'tmp_files/test5_zip'
         decompressed_file_name = 'tmp_files/test5_res.xml'
         common(original_file_name, compressed_file_name, decompressed_file_name)
