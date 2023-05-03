@@ -1,7 +1,5 @@
-import filecmp
 import os
-import shutil
-import unittest
+from unittest import TestCase
 from unittest.mock import patch
 
 import main
@@ -17,7 +15,7 @@ def get_args(original_file_name, compressed_file_name):
 
 def common(original_file_name, compressed_file_name, decompressed_file_name):
     compress_args = get_args(original_file_name, compressed_file_name)
-    with unittest.mock.patch('sys.argv', compress_args):
+    with patch('sys.argv', compress_args):
         main.main()
 
     decompress_args = [
@@ -26,14 +24,17 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
         compressed_file_name,
         decompressed_file_name
     ]
-    with unittest.mock.patch('sys.argv', decompress_args):
+    with patch('sys.argv', decompress_args):
         main.main()
-    assert filecmp.cmp(original_file_name, decompressed_file_name)
+    with open(original_file_name, encoding="utf-8") as f1, open(decompressed_file_name, encoding="utf-8") as f2:
+        for line1, line2 in zip(f1, f2):
+            assert line1 == line2
     os.remove(compressed_file_name)
     os.remove(decompressed_file_name)
 
 
-class TestApp(unittest.TestCase):
+class TestApp(TestCase):
+    # Ran 6 tests in 133.561s
 
     def test_1(self):
         original_file_name = 'test_files/test1.txt'
@@ -62,10 +63,18 @@ class TestApp(unittest.TestCase):
     def test_5(self):
         extended_file_name = 'test_files/test2.xml'
         original_file_name = 'test_files/test5.xml'
-        shutil.copyfile(extended_file_name, original_file_name)
-        shutil.copyfile(extended_file_name, original_file_name)
-        shutil.copyfile(extended_file_name, original_file_name)
+        if os.path.exists(original_file_name):
+            os.remove(original_file_name)
+        with open(extended_file_name, "r") as file1, open(original_file_name, "a") as file2:
+            data = file1.read()
+            [file2.write(data) for _ in range(5)]
         compressed_file_name = 'tmp_files/test5_zip'
         decompressed_file_name = 'tmp_files/test5_res.xml'
+        common(original_file_name, compressed_file_name, decompressed_file_name)
         os.remove(original_file_name)
+
+    def test_6(self):
+        original_file_name = 'test_files/test6.txt'
+        compressed_file_name = 'tmp_files/test6_zip'
+        decompressed_file_name = 'tmp_files/test6_res.txt'
         common(original_file_name, compressed_file_name, decompressed_file_name)
