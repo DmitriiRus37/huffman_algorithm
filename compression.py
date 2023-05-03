@@ -5,9 +5,7 @@ from node import Node
 from tqdm import tqdm
 
 def add_pad(string: str):
-    padding = 8 - len(string) % 8
-    if padding == 8:
-        padding = 0
+    padding = (8 - len(string) % 8) % 8
     return '{0:08b}'.format(padding) + string + '0' * padding
 
 
