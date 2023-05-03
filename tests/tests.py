@@ -34,6 +34,7 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
 
 
 class TestApp(unittest.TestCase):
+    # Ran 5 tests in 19.720s
 
     def test_1(self):
         original_file_name = 'test_files/test1.txt'
@@ -67,5 +68,5 @@ class TestApp(unittest.TestCase):
         shutil.copyfile(extended_file_name, original_file_name)
         compressed_file_name = 'tmp_files/test5_zip'
         decompressed_file_name = 'tmp_files/test5_res.xml'
-        os.remove(original_file_name)
         common(original_file_name, compressed_file_name, decompressed_file_name)
+        os.remove(original_file_name)
