@@ -1,8 +1,5 @@
 # huffman_algorithm
 
-[//]: # (TODO: how to work with files > 1Gb, e.g. 20 Gb)
-[//]: # (TODO: add ProgressBar)
-
 Compressed binary string consists of:
 1. header:
    a) count of bytes UTF-8 encoded of rest of header
@@ -19,27 +16,26 @@ chmod +x ./venv/bin/activate &&
 ./venv/bin/pip install -r requirements.txt
 `
 4.
-   a) `python3 main.py *source_path* *dest_path*` to encode;   
+   a) `venv/bin/python3 main.py *source_path* *dest_path*` to encode;   
    or   
-   b) `python3 main.py decode *source_path* *dest_path*` to decode;
+   b) `venv/bin/python3 main.py decode *source_path* *dest_path*` to decode;
 
-
-
+   
 
 You can check:
 `
-python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
-python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res && 
+venv/bin/python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
+venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res && 
 rm tests/test_files/test2_enc tests/test_files/test2_res
 `
 --- 189 different symbols ---
---- 1.7757115364074707 seconds to define symbols frequency ---
---- 3.5352022647857666 seconds to encode file ---
---- 5.336536407470703 seconds to compress file ---
+--- 1.4361639022827148 seconds to define symbols frequency ---
+--- 2.529226064682007 seconds to encode file ---
+--- 3.970651626586914 seconds to compress file ---
 --- Compression: 55.02 % ---
---- 0.11851668357849121 seconds to read all bytes from file ---
---- 7.032465934753418 seconds to decode file and write it to dest ---
---- 7.173500299453735 seconds to decompress ---
+--- 0.0037603378295898438 seconds to read all bytes from file ---
+--- 4.645887851715088 seconds to decode file and write it to dest ---
+--- 4.787070035934448 seconds to decompress ---
 --- Compression: 55.02 % ---
 
 
@@ -47,40 +43,16 @@ rm tests/test_files/test2_enc tests/test_files/test2_res
 cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml  && 
-python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
-python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
+venv/bin/python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
+venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
 rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
 `
 --- 189 different symbols ---
---- 5.348633289337158 seconds to define symbols frequency ---
---- 10.284911870956421 seconds to encode file ---
---- 15.673316478729248 seconds to compress file ---
+--- 4.063854217529297 seconds to define symbols frequency ---
+--- 7.374655485153198 seconds to encode file ---
+--- 11.4525306224823 seconds to compress file ---
 --- Compression: 55.02 % ---
---- 0.35221123695373535 seconds to read all bytes from file ---
---- 21.67078685760498 seconds to decode file and write it to dest ---
---- 22.08542490005493 seconds to decompress ---
+--- 0.009339570999145508 seconds to read all bytes from file ---
+--- 14.517167091369629 seconds to decode file and write it to dest ---
+--- 14.935723304748535 seconds to decompress ---
 --- Compression: 55.02 % ---
-
-cat tests/test_files/test2.xml > tests/test_files/test2_tmp1.xml && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp1.xml >> tests/test_files/test2_tmp2.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  && 
-cat tests/test_files/test2_tmp2.xml >> tests/test_files/test2_tmp1.xml  &&
-rm tests/test_files/test2_tmp2.xml &&
-mv tests/test_files/test2_tmp1.xml tests/test_files/test2_tmp.xml &&
-du -h tests/test_files/test2_tmp.xml &&
-python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
-python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
-rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml

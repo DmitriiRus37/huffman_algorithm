@@ -1,5 +1,6 @@
 import filecmp
 import os
+import shutil
 import unittest
 from unittest.mock import patch
 
@@ -56,4 +57,15 @@ class TestApp(unittest.TestCase):
         original_file_name = 'test_files/test4.txt'
         compressed_file_name = 'tmp_files/test4_zip'
         decompressed_file_name = 'tmp_files/test4_res.txt'
+        common(original_file_name, compressed_file_name, decompressed_file_name)
+
+    def test_5(self):
+        extended_file_name = 'test_files/test2.xml'
+        original_file_name = 'test_files/test5.xml'
+        shutil.copyfile(extended_file_name, original_file_name)
+        shutil.copyfile(extended_file_name, original_file_name)
+        shutil.copyfile(extended_file_name, original_file_name)
+        compressed_file_name = 'tmp_files/test5_zip'
+        decompressed_file_name = 'tmp_files/test5_res.xml'
+        os.remove(original_file_name)
         common(original_file_name, compressed_file_name, decompressed_file_name)
