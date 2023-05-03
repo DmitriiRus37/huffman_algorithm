@@ -27,13 +27,14 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
     with patch('sys.argv', decompress_args):
         main.main()
     with open(original_file_name, encoding="utf-8") as f1, open(decompressed_file_name, encoding="utf-8") as f2:
-        assert f1.read() == f2.read()
+        for line1, line2 in zip(f1, f2):
+            assert line1 == line2
     os.remove(compressed_file_name)
     os.remove(decompressed_file_name)
 
 
 class TestApp(TestCase):
-    # Ran 5 tests in 19.720s
+    # Ran 6 tests in 133.561s
 
     def test_1(self):
         original_file_name = 'test_files/test1.txt'
