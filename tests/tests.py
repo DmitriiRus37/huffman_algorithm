@@ -68,7 +68,6 @@ class TestApp(TestCase):
         with open(extended_file_name, "r") as file1, open(original_file_name, "a") as file2:
             data = file1.read()
             [file2.write(data) for _ in range(5)]
-
         compressed_file_name = 'tmp_files/test5_zip'
         decompressed_file_name = 'tmp_files/test5_res.xml'
         common(original_file_name, compressed_file_name, decompressed_file_name)
