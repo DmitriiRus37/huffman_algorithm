@@ -62,7 +62,8 @@ class TestApp(TestCase):
     def test_5(self):
         extended_file_name = 'test_files/test2.xml'
         original_file_name = 'test_files/test5.xml'
-        os.remove(original_file_name)
+        if os.path.exists(original_file_name):
+            os.remove(original_file_name)
         with open(extended_file_name, "r") as file1, open(original_file_name, "a") as file2:
             data = file1.read()
             for i in range(5):
