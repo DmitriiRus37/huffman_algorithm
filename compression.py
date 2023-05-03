@@ -101,6 +101,7 @@ class Compression:
                     self.char_freq[ch] += 1
                 mbytes_read = len(line.encode('utf-8')) / 1024 / 1024
                 pbar.update(mbytes_read)
+            pbar.close()
         if len(self.char_freq) == 0:
             raise Exception("Source file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
