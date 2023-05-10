@@ -1,9 +1,9 @@
+import os
 from io import StringIO
-
 from bitarray import bitarray
-
 from helpers import print_time_spent, WrapValue
 from node import Node
+from tqdm import tqdm
 
 
 class Decompression:
@@ -15,9 +15,9 @@ class Decompression:
         self.table_of_codes = {}
 
     @print_time_spent(message="to read all bytes from file")
-    def read_from_file(self, file_name: str) -> bitarray:
+    def read_from_file(self, file_name: str, pbar) -> bitarray:
         with open(file_name, "rb") as f:
-            header = self.read_header(f)
+            header = self.read_header(f, pbar)
             header = WrapValue(header)
             root_node = Node(left=None, right=None)
             self.nodes.append(root_node)
@@ -31,9 +31,12 @@ class Decompression:
 
     @print_time_spent(message="to decompress")
     def decompress(self, source: str, dest: str):
-        self.bit_string = self.read_from_file(source).to01()
+        pbar = tqdm(total=float(os.path.getsize(source) / 1024 / 1024),
+                    unit="Mb", unit_scale=True,
+                    desc="Decoded")
+        self.bit_string = self.read_from_file(source, pbar).to01()
         self.remove_padding()
-        self.decode(dest)
+        self.decode(pbar, dest)
 
     def set_letter_to_a_node(self, node: Node, letter: str, code: str):
         node.letter = letter
@@ -60,22 +63,31 @@ class Decompression:
             raise Exception("Here must be a '0' or '1', not a letter")
 
     @staticmethod
-    def read_header(file):
+    def read_header(file, pbar):
         header_bytes = int(process_4_bytes(file), 2)
         header_bytes = WrapValue(header_bytes)
-        ba = read_bytes_to_bytearray(header_bytes.val, file)
+        mbytes_read = 1 / 1024 / 1024
+        pbar.update(mbytes_read)
+        ba = read_bytes_to_bytearray(header_bytes.val, file, pbar)
         return ba.decode('utf8', errors='strict')
 
     @print_time_spent(message="to decode file and write it to dest")
-    def decode(self, dest: str):
+    def decode(self, pbar, dest: str):
         current_code = ''
         file_str = StringIO()
+        bits_count = 0
         for bit in self.bit_string:
             current_code += bit
+            bits_count += 1
+            if bits_count == 8:
+                mbytes_read = 1 / 1024 / 1024
+                pbar.update(mbytes_read)
+                bits_count = 0
             if current_code in self.table_of_codes:
                 symbol = self.table_of_codes[current_code]
                 file_str.write(symbol)
                 current_code = ''
+        pbar.close()
         with open(dest, "w") as f:
             f.write(file_str.getvalue())
 
@@ -101,5 +113,7 @@ def process_4_bytes(f):
     return ''.join(bits1)
 
 
-def read_bytes_to_bytearray(count: int, f):
+def read_bytes_to_bytearray(count: int, f, pbar):
+    mbytes_read = count / 1024 / 1024
+    pbar.update(mbytes_read)
     return bytearray(f.read(count))

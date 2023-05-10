@@ -19,6 +19,11 @@ def get_compression_info(s, d):
     compress_percent = "{:.2f}".format(output_size / input_size * 100)
     print(f"--- Compression: {compress_percent} % ---")
 
+
+def update_pbar(val: float, pbar):
+    pbar.update(val)
+
+
 class WrapValue:
     def __init__(self, val):
         self.val = val

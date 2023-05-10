@@ -1,5 +1,4 @@
 import os
-import sys
 from io import StringIO
 from helpers import print_time_spent
 from node import Node
