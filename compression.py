@@ -14,6 +14,7 @@ def add_pad(string: str):
 class Compression:
 
     def __init__(self):
+        self.symbols_count = 0
         self.table_of_codes = {}
         self.char_freq = {}
         self.nodes = []
@@ -50,7 +51,11 @@ class Compression:
     @print_time_spent(message="to encode file")
     def encode(self, file):
         bits_io = StringIO()
-        [bits_io.write(''.join(self.table_of_codes[ch] for ch in line)) for line in file]
+        pbar = tqdm(total=self.symbols_count, desc="Encoded symbols")
+        for line in file:
+            bits_io.write(''.join(self.table_of_codes[ch] for ch in line))
+            pbar.update(len(line))
+        pbar.close()
         bits = add_pad(bits_io.getvalue())
         arr_header = bytearray(self.add_header_info())
         b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
@@ -102,6 +107,7 @@ class Compression:
         if len(self.char_freq) == 0:
             raise Exception("Source file is empty")
         print(f"--- {len(self.char_freq)} different symbols ---")
+        self.symbols_count = sum(v for v in self.char_freq.values())
 
     def create_table_of_codes(self, n: Node, code: str):
         if n.left == n.right is None:
