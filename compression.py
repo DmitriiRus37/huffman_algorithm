@@ -1,4 +1,5 @@
 import os
+import sys
 from io import StringIO
 from helpers import print_time_spent
 from node import Node
@@ -18,15 +19,11 @@ class Compression:
         self.nodes = []
 
     def create_huffman_tree(self):
-        if len(self.nodes) == 1:
-            return
-        else:
+        while len(self.nodes) != 1:
             self.nodes.sort(key=lambda x: x.freq)
             parent = Node(left=self.nodes[0], right=self.nodes[1])
             self.nodes.append(parent)
-            del self.nodes[0]
-            del self.nodes[0]
-            self.create_huffman_tree()
+            del self.nodes[:2]
 
     def add_header_info(self):
         symbol_codes = StringIO()
