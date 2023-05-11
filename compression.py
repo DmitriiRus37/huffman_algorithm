@@ -1,6 +1,6 @@
 import os
 from io import StringIO
-from helpers import print_time_spent
+from helpers import print_time_spent, update_pbar
 from node import Node
 from tqdm import tqdm
 
@@ -53,7 +53,7 @@ class Compression:
         pbar = tqdm(total=self.symbols_count, desc="Encoded symbols")
         for line in file:
             bits_io.write(''.join(self.table_of_codes[ch] for ch in line))
-            pbar.update(len(line))
+            update_pbar(len(line), pbar)
         pbar.close()
         bits = add_pad(bits_io.getvalue())
         arr_header = bytearray(self.add_header_info())
@@ -100,8 +100,7 @@ class Compression:
                 for ch in list(line):
                     self.char_freq.setdefault(ch, 0)
                     self.char_freq[ch] += 1
-                mbytes_read = len(line.encode('utf-8')) / 1024 / 1024
-                pbar.update(mbytes_read)
+                update_pbar(len(line.encode('utf-8')) / 1024 / 1024, pbar)
             pbar.close()
         if len(self.char_freq) == 0:
             raise Exception("Source file is empty")
