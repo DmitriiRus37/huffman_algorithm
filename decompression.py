@@ -30,7 +30,7 @@ class Decompression:
             return bit_array, header_bytes
 
     @print_time_spent(message="to decompress")
-    def decompress(self, source: str, dest: str):
+    def decompress(self, source: str, dest: str) -> None:
         bit_arr, header_bytes = self.read_from_file(source)
         pbar = tqdm(total=float(os.path.getsize(source) / 1024 / 1024),
                     unit="Mb", unit_scale=True,
@@ -40,11 +40,11 @@ class Decompression:
         self.remove_padding()
         self.decode(pbar, dest)
 
-    def set_letter_to_a_node(self, node: Node, letter: str, code: str):
+    def set_letter_to_a_node(self, node: Node, letter: str, code: str) -> None:
         node.letter = letter
         self.table_of_codes[code] = letter
 
-    def restore_tree(self, node: Node, symbol_str: WrapValue, code: str):
+    def restore_tree(self, node: Node, symbol_str: WrapValue, code: str) -> None:
         if symbol_str.val == '':
             return
         symbol = symbol_str.val[0]
@@ -72,7 +72,7 @@ class Decompression:
         return ba.decode('utf8', errors='strict'), header_bytes.val + 4
 
     @print_time_spent(message="to decode file and write it to dest")
-    def decode(self, pbar, dest: str):
+    def decode(self, pbar, dest: str) -> None:
         current_code = ''
         file_str = StringIO()
         bits_count = 0
@@ -91,27 +91,27 @@ class Decompression:
         with open(dest, "w") as f:
             f.write(file_str.getvalue())
 
-    def remove_padding(self):
+    def remove_padding(self) -> None:
         byte = self.bit_string[:8]
         padding_bits = int(byte, 2)
         length = len(self.bit_string) - padding_bits
         self.bit_string = self.bit_string[8:length]
 
 
-def read_byte_to_val(f):
+def read_byte_to_val(f) -> str:
     return bin(ord(f.read(1)))[2:]
 
 
-def read_byte_to_char(f):
+def read_byte_to_char(f) -> str:
     b = f.read(1)
     char = str(b, encoding='utf-8')
     return char
 
 
-def read_4_bytes_to_bits(f):
+def read_4_bytes_to_bits(f) -> str:
     bits = [read_byte_to_val(f).rjust(8, '0') for _ in range(4)]
     return ''.join(bits)
 
 
-def read_bytes_to_bytearray(count: int, f):
+def read_bytes_to_bytearray(count: int, f) -> bytearray:
     return bytearray(f.read(count))
