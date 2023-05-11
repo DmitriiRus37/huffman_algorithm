@@ -66,10 +66,9 @@ class Decompression:
 
     @staticmethod
     def read_header(file) -> tuple[str, int]:
-        header_bytes = int(read_4_bytes_to_bits(file), 2)
-        header_bytes = WrapValue(header_bytes)
-        ba = read_bytes_to_bytearray(header_bytes.val, file)
-        return ba.decode('utf8', errors='strict'), header_bytes.val + 4
+        header_bytes = read_4_bytes_to_int(file)
+        ba = read_to_bytes(header_bytes, file)
+        return ba.decode('utf8', errors='strict'), header_bytes + 4
 
     @print_time_spent(message="to decode file and write it to dest")
     def decode(self, pbar, dest: str) -> None:
@@ -98,20 +97,9 @@ class Decompression:
         self.bit_string = self.bit_string[8:length]
 
 
-def read_byte_to_val(f) -> str:
-    return bin(ord(f.read(1)))[2:]
+def read_4_bytes_to_int(f) -> int:
+    return int.from_bytes(f.read(4), 'big')
 
 
-def read_byte_to_char(f) -> str:
-    b = f.read(1)
-    char = str(b, encoding='utf-8')
-    return char
-
-
-def read_4_bytes_to_bits(f) -> str:
-    bits = [read_byte_to_val(f).rjust(8, '0') for _ in range(4)]
-    return ''.join(bits)
-
-
-def read_bytes_to_bytearray(count: int, f) -> bytearray:
-    return bytearray(f.read(count))
+def read_to_bytes(count: int, f) -> bytes:
+    return bytes(f.read(count))
