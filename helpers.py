@@ -7,7 +7,7 @@ def print_time_spent(message):
         def wrapper(*args, **kwargs):
             start_time = time.time()
             result = func(*args, **kwargs)
-            print(f"--- {time.time() - start_time} seconds {message} ---")
+            print(f"--- {round(time.time() - start_time, 3)} seconds {message} ---")
             return result
         return wrapper
     return calculate_time
