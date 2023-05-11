@@ -1,7 +1,7 @@
 import os
 from io import StringIO
 from bitarray import bitarray
-from helpers import print_time_spent, WrapValue
+from helpers import print_time_spent, WrapValue, update_pbar
 from node import Node
 from tqdm import tqdm
 
@@ -15,9 +15,9 @@ class Decompression:
         self.table_of_codes = {}
 
     @print_time_spent(message="to read all bytes from file")
-    def read_from_file(self, file_name: str, pbar) -> bitarray:
+    def read_from_file(self, file_name: str) -> tuple[bitarray, int]:
         with open(file_name, "rb") as f:
-            header = self.read_header(f, pbar)
+            header, header_bytes = self.read_header(f)
             header = WrapValue(header)
             root_node = Node(left=None, right=None)
             self.nodes.append(root_node)
@@ -27,14 +27,16 @@ class Decompression:
                 self.restore_tree(root_node, header, '')
             bit_array = bitarray()
             bit_array.fromfile(f)
-            return bit_array
+            return bit_array, header_bytes
 
     @print_time_spent(message="to decompress")
     def decompress(self, source: str, dest: str):
+        bit_arr, header_bytes = self.read_from_file(source)
         pbar = tqdm(total=float(os.path.getsize(source) / 1024 / 1024),
                     unit="Mb", unit_scale=True,
                     desc="Decoded")
-        self.bit_string = self.read_from_file(source, pbar).to01()
+        update_pbar(header_bytes / 1024 / 1024, pbar)
+        self.bit_string = bit_arr.to01()
         self.remove_padding()
         self.decode(pbar, dest)
 
@@ -63,13 +65,11 @@ class Decompression:
             raise Exception("Here must be a '0' or '1', not a letter")
 
     @staticmethod
-    def read_header(file, pbar):
-        header_bytes = int(process_4_bytes(file), 2)
+    def read_header(file) -> tuple[str, int]:
+        header_bytes = int(read_4_bytes_to_bits(file), 2)
         header_bytes = WrapValue(header_bytes)
-        mbytes_read = 1 / 1024 / 1024
-        pbar.update(mbytes_read)
-        ba = read_bytes_to_bytearray(header_bytes.val, file, pbar)
-        return ba.decode('utf8', errors='strict')
+        ba = read_bytes_to_bytearray(header_bytes.val, file)
+        return ba.decode('utf8', errors='strict'), header_bytes.val + 4
 
     @print_time_spent(message="to decode file and write it to dest")
     def decode(self, pbar, dest: str):
@@ -80,13 +80,13 @@ class Decompression:
             current_code += bit
             bits_count += 1
             if bits_count == 8:
-                mbytes_read = 1 / 1024 / 1024
-                pbar.update(mbytes_read)
+                update_pbar(1 / 1024 / 1024, pbar)
                 bits_count = 0
             if current_code in self.table_of_codes:
                 symbol = self.table_of_codes[current_code]
                 file_str.write(symbol)
                 current_code = ''
+        update_pbar(bits_count / 8 / 1024 / 1024, pbar)
         pbar.close()
         with open(dest, "w") as f:
             f.write(file_str.getvalue())
@@ -108,12 +108,10 @@ def read_byte_to_char(f):
     return char
 
 
-def process_4_bytes(f):
-    bits1 = [read_byte_to_val(f).rjust(8, '0') for _ in range(4)]
-    return ''.join(bits1)
+def read_4_bytes_to_bits(f):
+    bits = [read_byte_to_val(f).rjust(8, '0') for _ in range(4)]
+    return ''.join(bits)
 
 
-def read_bytes_to_bytearray(count: int, f, pbar):
-    mbytes_read = count / 1024 / 1024
-    pbar.update(mbytes_read)
+def read_bytes_to_bytearray(count: int, f):
     return bytearray(f.read(count))
