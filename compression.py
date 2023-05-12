@@ -64,14 +64,15 @@ class Compression:
             pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
             while True:
                 end_of_file = WrapValue(False)
-                bit_arr = bit_arr_remainder + self.encode_file(f_in, part_size, end_of_file, pbar)
-                self.remainder = (len(bit_arr) + self.remainder) % 8
+                bit_arr = bit_arr_remainder + self.encode_file(f_in, part_size, end_of_file, pbar)  # may be with remainder
+                bit_arr_to_write, bit_arr_rem = self.split_write_and_rem(bit_arr)
+                self.remainder = len(bit_arr) % 8
                 if self.remainder == 0:
                     bit_arr_remainder = bitarray()
                 else:
                     bit_arr_remainder = bit_arr[-self.remainder:]
-                self.get_bit_arr_to_write(bit_arr)
-                f_out.write(bytes(bit_arr))
+                to_write = self.get_bit_arr_to_write(bit_arr)
+                f_out.write(bytes(to_write))
                 if end_of_file.val:
                     break
             padding_info, padding_symbols = self.add_pad()
@@ -162,6 +163,12 @@ class Compression:
             self.create_table_of_codes(n.right, code + '1')
 
     def get_bit_arr_to_write(self, bit_arr):
-        for i in range(self.remainder):
-            del bit_arr[-1]
-        return bit_arr
+        rem = len(bit_arr) % 8
+        return bit_arr[:len(bit_arr)-rem]
+
+    def split_write_and_rem(self, bit_arr):
+        remainder = len(bit_arr) % 8
+        lengh = len(bit_arr) - remainder
+        return bit_arr[:lengh], bit_arr[lengh:]
+
+
