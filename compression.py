@@ -3,11 +3,12 @@ from io import StringIO
 from helpers import print_time_spent, update_pbar
 from node import Node
 from tqdm import tqdm
+from bitarray import bitarray
 
 
-def add_pad(string: str) -> str:
-    padding = (8 - len(string) % 8) % 8
-    return '{0:08b}'.format(padding) + string + '0' * padding
+def add_pad(bit_ar: bitarray) -> bitarray:
+    padding = (8 - len(bit_ar) % 8) % 8
+    return bitarray('{0:08b}'.format(padding)) + bit_ar + bitarray('0' * padding)
 
 
 class Compression:
@@ -48,17 +49,18 @@ class Compression:
             self.build_header(node.right, current_header)
 
     @print_time_spent(message="to encode file")
-    def encode(self, file) -> bytearray:
-        bits_io = StringIO()
+    def encode(self, file) -> bytes:
+        bits_io = bitarray()
         pbar = tqdm(total=self.symbols_count, desc="Encoded symbols")
         for line in file:
-            bits_io.write(''.join(self.table_of_codes[ch] for ch in line))
+            for ch in line:
+                bits_io += self.table_of_codes[ch]
             update_pbar(len(line), pbar)
         pbar.close()
-        bits = add_pad(bits_io.getvalue())
-        arr_header = bytearray(self.add_header_info())
-        b_arr = bytearray((int(bits[i:i + 8], 2)) for i in range(0, len(bits), 8))
-        return arr_header + b_arr
+        bits_io = add_pad(bits_io)
+        arr_header = bytes(self.add_header_info())
+        byte_arr = bytes(bits_io)
+        return arr_header + byte_arr
 
     def validate_header(self, header) -> None:
         unique_symbols = len(self.char_freq.keys())
@@ -80,14 +82,19 @@ class Compression:
             self.create_table_of_codes(self.nodes[0], '0')
         else:
             self.create_table_of_codes(self.nodes[0], '')
+        self.codes_01_to_bits()
         self.validate_table_of_codes()
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
             byte_arr = self.encode(f_in)
             f_out.write(bytes(byte_arr))
 
+    def codes_01_to_bits(self):
+        for k, v in self.table_of_codes.items():
+            self.table_of_codes[k] = bitarray(v)
+
     def validate_table_of_codes(self) -> None:
         for key, value in self.table_of_codes.items():
-            if value == '':
+            if value == bitarray():
                 raise Exception('symbol \"' + key + '\" doesn\'t have a code')
 
     @print_time_spent(message="to define symbols frequency")

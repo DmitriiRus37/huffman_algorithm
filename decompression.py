@@ -53,7 +53,6 @@ class Decompression:
             left_node = Node(left=None, right=None)
             node.left = left_node
             self.restore_tree(left_node, symbol_str, code + '0')
-
             right_node = Node(left=None, right=None)
             node.right = right_node
             self.restore_tree(right_node, symbol_str, code + '1')
