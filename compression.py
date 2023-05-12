@@ -19,7 +19,7 @@ class Compression:
 
     def add_pad(self):
         padding = (8 - self.remainder) % 8
-        return '{0:08b}'.format(padding), '0' * padding
+        return bitarray('{0:08b}'.format(padding)), bitarray('0' * padding)
 
     def create_huffman_tree(self) -> None:
         while len(self.nodes) != 1:
@@ -51,11 +51,16 @@ class Compression:
             self.build_header(node.right, current_header)
 
     @print_time_spent(message="to encode file")
-    def endode_and_write(self, source, dest):
+    def encode_and_write(self, source, dest):
+        input_file_size = os.path.getsize(source) / 1024 / 1024
+        print(f'Size of input file: {str(input_file_size)} Mb')
         with open(file=source, mode='r') as f_in, open(file=dest, mode='wb') as f_out:
             # if file is large then we must split it and work with each piece separately
             # for example 100 Mb
-            part_size = 100  # Mb
+            max_partition_size = 2
+            part_size = max_partition_size
+            # partitions = math.ceil(input_file_size / max_partition_size)
+            # part_size = input_file_size / partitions
             pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
             while True:
                 end_of_file = WrapValue(False)
@@ -75,8 +80,8 @@ class Compression:
         with open(file=dest, mode='rb') as f_in, open(file=tmp_file_name, mode='wb') as f_out:
             header = self.add_header_info()
             f_out.write(header)
-            f_out.write(bytes(bitarray(padding_info)))
-            block_size = 128 * 1024  # 128 Кб
+            f_out.write(bytes(padding_info))
+            block_size = 1024 * 1024  # 1 Мб
             while True:
                 partition = f_in.read(block_size)
                 if not partition:
@@ -85,20 +90,19 @@ class Compression:
         shutil.move(tmp_file_name, dest)
 
     def encode_file(self, file, part_size, end_of_file: WrapValue, pbar: tqdm):
-        bits_io = bitarray()
+        bit_arr = bitarray()
         num_bytes = 0
         for line in file:
             for ch in line:
-                bits_io += self.table_of_codes[ch]
+                bit_arr += self.table_of_codes[ch]
             update_pbar(len(line), pbar)
             b = line.encode('utf-8')
             num_bytes += len(b)
             if num_bytes / 1024 / 1024 > part_size:
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                return bits_io
+                return bit_arr
         pbar.close()
         end_of_file.val = True
-        return bits_io
+        return bit_arr
 
     def validate_header(self, header) -> None:
         unique_symbols = len(self.char_freq.keys())
@@ -122,7 +126,7 @@ class Compression:
             self.create_table_of_codes(self.nodes[0], '')
         self.codes_01_to_bits()
         self.validate_table_of_codes()
-        self.endode_and_write(source, dest)
+        self.encode_and_write(source, dest)
 
     def codes_01_to_bits(self):
         for k, v in self.table_of_codes.items():
