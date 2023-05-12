@@ -15,7 +15,6 @@ class Compression:
         self.char_freq = {}
         self.nodes = []
         self.remainder = 0
-        self.bit_arr_remainder = bitarray('')
 
     def add_pad(self):
         padding = (8 - self.remainder) % 8
@@ -61,21 +60,22 @@ class Compression:
             part_size = max_partition_size
             # partitions = math.ceil(input_file_size / max_partition_size)
             # part_size = input_file_size / partitions
+            bit_arr_remainder = bitarray()
             pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
             while True:
                 end_of_file = WrapValue(False)
-                bit_arr = self.bit_arr_remainder + self.encode_file(f_in, part_size, end_of_file, pbar)
-                self.remainder = len(bit_arr) % 8 + self.remainder
+                bit_arr = bit_arr_remainder + self.encode_file(f_in, part_size, end_of_file, pbar)
+                self.remainder = (len(bit_arr) + self.remainder) % 8
                 if self.remainder == 0:
-                    self.bit_arr_remainder = bitarray()
+                    bit_arr_remainder = bitarray()
                 else:
-                    self.bit_arr_remainder = bit_arr[-self.remainder:]
-                bit_arr_to_write = self.get_bit_arr_to_write(bit_arr)
-                f_out.write(bytes(bit_arr_to_write))
+                    bit_arr_remainder = bit_arr[-self.remainder:]
+                self.get_bit_arr_to_write(bit_arr)
+                f_out.write(bytes(bit_arr))
                 if end_of_file.val:
                     break
             padding_info, padding_symbols = self.add_pad()
-            f_out.write(bytes(self.bit_arr_remainder + bitarray(padding_symbols)))
+            f_out.write(bytes(bit_arr_remainder + bitarray(padding_symbols)))
         tmp_file_name = 'tmp'
         with open(file=dest, mode='rb') as f_in, open(file=tmp_file_name, mode='wb') as f_out:
             header = self.add_header_info()

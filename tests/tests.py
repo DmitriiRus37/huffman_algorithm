@@ -30,7 +30,7 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
         for line1, line2 in zip(f1, f2):
             if line1 != line2:
                 print('Original file string: ' + line1)
-                print('Decompressed file string: '+line2)
+                print('Decompressed file string: ' + line2)
             assert line1 == line2
     os.remove(compressed_file_name)
     os.remove(decompressed_file_name)
