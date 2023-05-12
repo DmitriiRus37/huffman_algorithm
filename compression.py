@@ -61,15 +61,14 @@ class Compression:
         with open(file=source, mode='r') as f_in, open(file=dest, mode='wb') as f_out:
             # if file is large then we must split it and work with each piece separately
             # for example 1 Mb
-            max_partition_size = 1
-            part_size = max_partition_size
+            partition_size = 1024 * 1024
             # partitions = math.ceil(input_file_size / max_partition_size)
             # part_size = input_file_size / partitions
             bit_arr_remainder = bitarray()
             pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
             while True:
                 end_of_file = WrapValue(False)
-                bit_arr = bit_arr_remainder + self.encode_file(f_in, part_size, end_of_file, pbar)
+                bit_arr = bit_arr_remainder + self.encode_file(f_in, partition_size, end_of_file, pbar)
                 bit_arr_to_write, bit_arr_remainder = split_write_and_rem(bit_arr)
                 rem = len(bit_arr_remainder)
                 f_out.write(bytes(bit_arr_to_write))
@@ -82,9 +81,8 @@ class Compression:
             header = self.add_header_info()
             f_out.write(header)
             f_out.write(bytes(padding_info))
-            block_size = 1024 * 1024  # 1 Мб
             while True:
-                partition = f_in.read(block_size)
+                partition = f_in.read(partition_size)
                 if not partition:
                     break
                 f_out.write(partition)
@@ -99,7 +97,7 @@ class Compression:
             update_pbar(len(line), pbar)
             b = line.encode('utf-8')
             num_bytes += len(b)
-            if num_bytes / 1024 / 1024 > part_size:
+            if num_bytes > part_size:
                 return bit_arr
         pbar.close()
         end_of_file.val = True
