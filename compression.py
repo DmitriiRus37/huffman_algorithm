@@ -51,7 +51,7 @@ class Compression:
     @print_time_spent(message="to encode file")
     def encode(self, file) -> bytes:
         bits_io = bitarray()
-        pbar = tqdm(total=self.symbols_count, desc="Encoded symbols")
+        pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
         for line in file:
             for ch in line:
                 bits_io += self.table_of_codes[ch]

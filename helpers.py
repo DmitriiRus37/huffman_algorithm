@@ -1,5 +1,6 @@
 import os
 import time
+from tqdm import tqdm
 
 
 def print_time_spent(message):
@@ -20,7 +21,7 @@ def get_compression_info(s, d) -> None:
     print(f"--- Compression: {compress_percent} % ---")
 
 
-def update_pbar(val: float, pbar) -> None:
+def update_pbar(val: float, pbar: tqdm) -> None:
     pbar.update(val)
 
 
