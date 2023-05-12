@@ -85,6 +85,7 @@ class Compression:
         self.codes_01_to_bits()
         self.validate_table_of_codes()
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
+            #TODO make partitions here: piece writes to memory, then writes to out file
             byte_arr = self.encode_file(f_in)
             f_out.write(bytes(byte_arr))
 
