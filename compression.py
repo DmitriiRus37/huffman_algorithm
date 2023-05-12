@@ -49,7 +49,7 @@ class Compression:
             self.build_header(node.right, current_header)
 
     @print_time_spent(message="to encode file")
-    def encode(self, file) -> bytes:
+    def encode_file(self, file) -> bytes:
         bits_io = bitarray()
         pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
         for line in file:
@@ -85,7 +85,7 @@ class Compression:
         self.codes_01_to_bits()
         self.validate_table_of_codes()
         with open(source, "r") as f_in, open(dest, "wb") as f_out:
-            byte_arr = self.encode(f_in)
+            byte_arr = self.encode_file(f_in)
             f_out.write(bytes(byte_arr))
 
     def codes_01_to_bits(self):
