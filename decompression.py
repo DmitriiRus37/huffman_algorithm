@@ -87,28 +87,28 @@ class Decompression:
 
     def decode_block(self, dest: str) -> None:
         block_size_bits = len(self.block)
-        file_str = StringIO()
-        self.get_symbols(self.rest_bits + self.block[:block_size_bits-7], file_str)
+        file_str = self.get_symbols(self.rest_bits + self.block[:block_size_bits-7])
         self.rest_bits = self.block[block_size_bits-7:]
         with open(dest, "a") as f:
-            f.write(file_str.getvalue())
+            f.write(file_str)
 
     def decode_last_block(self, dest: str) -> None:
         block_size_bits = len(self.block)
-        file_str = StringIO()
-        self.get_symbols(self.rest_bits + self.block[:block_size_bits - self.padding_bits], file_str)
+        file_str = self.get_symbols(self.rest_bits + self.block[:block_size_bits - self.padding_bits])
         if self.rest_code != '':
             raise Exception('encoded file invalid!!!')
         with open(dest, "a") as f:
-            f.write(file_str.getvalue())
+            f.write(file_str)
 
-    def get_symbols(self, bitar, file_str):
+    def get_symbols(self, bitar: bitarray) -> str:
+        file_str = StringIO()
         for bit in bitar:
             self.rest_code += '0' if bit == 0 else '1'
             if self.rest_code in self.table_of_codes:
                 symbol = self.table_of_codes[self.rest_code]
                 file_str.write(symbol)
                 self.rest_code = ''
+        return file_str.getvalue()
 
 
 def read_4_bytes_to_int(f) -> int:
