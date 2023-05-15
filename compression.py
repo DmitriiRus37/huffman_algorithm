@@ -61,7 +61,7 @@ class Compression:
         with open(file=source, mode='r') as f_in, open(file=dest, mode='wb') as f_out:
             # if file is large then we must split it and work with each piece separately
             # for example 1 Mb
-            partition_size = 1024 * 1024
+            partition_size = 1024 * 64  # 64 Kbyte
             # partitions = math.ceil(input_file_size / max_partition_size)
             # part_size = input_file_size / partitions
             bit_arr_remainder = bitarray()
