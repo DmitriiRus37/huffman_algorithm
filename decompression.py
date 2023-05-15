@@ -41,21 +41,19 @@ class Decompression:
             update_pbar(header_bytes / 1024 / 1024, pbar)
 
             self.padding_bits = int.from_bytes(f.read(1), 'big')
-            first_block = bitarray()
-            first_block.frombytes(f.read(partition_size))
-            self.block = first_block
+            self.block.frombytes(f.read(partition_size))
             if self.block == bitarray():
                 raise Exception('Encrypted file contains only header')
             while True:
-                second_block = bitarray()
-                second_block.frombytes(f.read(partition_size))
-                if second_block == bitarray():
+                next_block = bitarray()
+                next_block.frombytes(f.read(partition_size))
+                if next_block == bitarray():
                     self.decode_last_block(dest)
                     update_pbar(self.block.nbytes / 1024 / 1024, pbar)
                     break
                 self.decode_block(dest)
                 update_pbar(self.block.nbytes / 1024 / 1024, pbar)
-                self.block = second_block
+                self.block = next_block
             pbar.close()
 
     def restore_tree(self, node: Node, symbol_str: WrapValue, code: str) -> None:
@@ -90,12 +88,7 @@ class Decompression:
     def decode_block(self, dest: str) -> None:
         block_size_bits = len(self.block)
         file_str = StringIO()
-        for bit in self.rest_bits + self.block[:block_size_bits-7]:
-            self.rest_code += '0' if bit == 0 else '1'
-            if self.rest_code in self.table_of_codes:
-                symbol = self.table_of_codes[self.rest_code]
-                file_str.write(symbol)
-                self.rest_code = ''
+        self.get_symbols(self.rest_bits + self.block[:block_size_bits-7], file_str)
         self.rest_bits = self.block[block_size_bits-7:]
         with open(dest, "a") as f:
             f.write(file_str.getvalue())
@@ -103,14 +96,19 @@ class Decompression:
     def decode_last_block(self, dest: str) -> None:
         block_size_bits = len(self.block)
         file_str = StringIO()
-        for bit in self.rest_bits + self.block[:block_size_bits - self.padding_bits]:
+        self.get_symbols(self.rest_bits + self.block[:block_size_bits - self.padding_bits], file_str)
+        if self.rest_code != '':
+            raise Exception('encoded file invalid!!!')
+        with open(dest, "a") as f:
+            f.write(file_str.getvalue())
+
+    def get_symbols(self, bitar, file_str):
+        for bit in bitar:
             self.rest_code += '0' if bit == 0 else '1'
             if self.rest_code in self.table_of_codes:
                 symbol = self.table_of_codes[self.rest_code]
                 file_str.write(symbol)
                 self.rest_code = ''
-        with open(dest, "a") as f:
-            f.write(file_str.getvalue())
 
 
 def read_4_bytes_to_int(f) -> int:
