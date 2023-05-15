@@ -13,36 +13,50 @@ class Decompression:
         self.table_of_codes = {}
         self.nodes = []
         self.table_of_codes = {}
+        self.block = bitarray()
+        self.padding_bits = 0
+        self.rest_bits = bitarray()
+        self.rest_code = ''
 
     @print_time_spent(message="to read all bytes from file")
-    def read_from_file(self, file_name: str) -> tuple[bitarray, int]:
-        with open(file_name, "rb") as f:
-            header, header_bytes = self.read_header(f)
-            header = WrapValue(header)
-            root_node = Node(left=None, right=None)
-            self.nodes.append(root_node)
-            if len(header.val) == 2:
-                self.restore_tree(root_node, header, '0')
-            else:
-                self.restore_tree(root_node, header, '')
-            bit_array = bitarray()
-            bit_array.fromfile(f)
-            return bit_array, header_bytes
+    def read_from_file(self, f) -> int:
+        header, header_bytes = self.read_header(f)
+        header = WrapValue(header)
+        root_node = Node(left=None, right=None)
+        self.nodes.append(root_node)
+        if len(header.val) == 2:
+            self.restore_tree(root_node, header, '0')
+        else:
+            self.restore_tree(root_node, header, '')
+        return header_bytes
 
     @print_time_spent(message="to decompress")
     def decompress(self, source: str, dest: str) -> None:
-        bit_arr, header_bytes = self.read_from_file(source)
-        pbar = tqdm(total=float(os.path.getsize(source) / 1024 / 1024),
-                    unit="Mb", unit_scale=True,
-                    desc="Decoded")
-        update_pbar(header_bytes / 1024 / 1024, pbar)
-        self.bit_string = bit_arr.to01()
-        self.remove_padding()
-        self.decode_file(pbar, dest)
+        with open(source, "rb") as f:
+            partition_size = 1024 * 64
+            header_bytes = self.read_from_file(f)
+            pbar = tqdm(total=float(os.path.getsize(source) / 1024 / 1024),
+                        unit="Mb", unit_scale=True,
+                        desc="Decoded")
+            update_pbar(header_bytes / 1024 / 1024, pbar)
 
-    def set_letter_to_a_node(self, node: Node, letter: str, code: str) -> None:
-        node.letter = letter
-        self.table_of_codes[code] = letter
+            self.padding_bits = int.from_bytes(f.read(1), 'big')
+            first_block = bitarray()
+            first_block.frombytes(f.read(partition_size))
+            self.block = first_block
+            if self.block == bitarray():
+                raise Exception('Encrypted file contains only header')
+            while True:
+                second_block = bitarray()
+                second_block.frombytes(f.read(partition_size))
+                if second_block == bitarray():
+                    self.decode_last_block(dest)
+                    update_pbar(self.block.nbytes / 1024 / 1024, pbar)
+                    break
+                self.decode_block(dest)
+                update_pbar(self.block.nbytes / 1024 / 1024, pbar)
+                self.block = second_block
+            pbar.close()
 
     def restore_tree(self, node: Node, symbol_str: WrapValue, code: str) -> None:
         if symbol_str.val == '':
@@ -63,37 +77,40 @@ class Decompression:
         else:
             raise Exception("Here must be a '0' or '1', not a letter")
 
+    def set_letter_to_a_node(self, node: Node, letter: str, code: str) -> None:
+        node.letter = letter
+        self.table_of_codes[code] = letter
+
     @staticmethod
     def read_header(file) -> tuple[str, int]:
         header_bytes = read_4_bytes_to_int(file)
         ba = read_to_bytes(header_bytes, file)
         return ba.decode('utf8', errors='strict'), header_bytes + 4
 
-    @print_time_spent(message="to decode file and write it to dest")
-    def decode_file(self, pbar, dest: str) -> None:
-        current_code = ''
+    def decode_block(self, dest: str) -> None:
+        block_size_bits = len(self.block)
         file_str = StringIO()
-        bits_count = 0
-        for bit in self.bit_string:
-            current_code += bit
-            bits_count += 1
-            if bits_count == 8:
-                update_pbar(1 / 1024 / 1024, pbar)
-                bits_count = 0
-            if current_code in self.table_of_codes:
-                symbol = self.table_of_codes[current_code]
+        for bit in self.rest_bits + self.block[:block_size_bits-7]:
+            self.rest_code += '0' if bit == 0 else '1'
+            if self.rest_code in self.table_of_codes:
+                symbol = self.table_of_codes[self.rest_code]
                 file_str.write(symbol)
-                current_code = ''
-        update_pbar(bits_count / 8 / 1024 / 1024, pbar)
-        pbar.close()
-        with open(dest, "w") as f:
+                self.rest_code = ''
+        self.rest_bits = self.block[block_size_bits-7:]
+        with open(dest, "a") as f:
             f.write(file_str.getvalue())
 
-    def remove_padding(self) -> None:
-        byte = self.bit_string[:8]
-        padding_bits = int(byte, 2)
-        length = len(self.bit_string) - padding_bits
-        self.bit_string = self.bit_string[8:length]
+    def decode_last_block(self, dest: str) -> None:
+        block_size_bits = len(self.block)
+        file_str = StringIO()
+        for bit in self.rest_bits + self.block[:block_size_bits - self.padding_bits]:
+            self.rest_code += '0' if bit == 0 else '1'
+            if self.rest_code in self.table_of_codes:
+                symbol = self.table_of_codes[self.rest_code]
+                file_str.write(symbol)
+                self.rest_code = ''
+        with open(dest, "a") as f:
+            f.write(file_str.getvalue())
 
 
 def read_4_bytes_to_int(f) -> int:
