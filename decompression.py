@@ -38,7 +38,7 @@ class Decompression:
         update_pbar(header_bytes / 1024 / 1024, pbar)
         self.bit_string = bit_arr.to01()
         self.remove_padding()
-        self.decode(pbar, dest)
+        self.decode_file(pbar, dest)
 
     def set_letter_to_a_node(self, node: Node, letter: str, code: str) -> None:
         node.letter = letter
@@ -70,7 +70,7 @@ class Decompression:
         return ba.decode('utf8', errors='strict'), header_bytes + 4
 
     @print_time_spent(message="to decode file and write it to dest")
-    def decode(self, pbar, dest: str) -> None:
+    def decode_file(self, pbar, dest: str) -> None:
         current_code = ''
         file_str = StringIO()
         bits_count = 0
