@@ -32,35 +32,40 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
                 print('Original file string: ' + line1)
                 print('Decompressed file string: ' + line2)
             assert line1 == line2
-    os.remove(compressed_file_name)
-    os.remove(decompressed_file_name)
 
 
 class TestApp(TestCase):
     # Ran 6 tests in 133.561s
 
+    def tearDown(self):
+        [os.remove(f) for f in self.files_to_remove]
+
     def test_1(self):
         original_file_name = 'test_files/test1.txt'
         compressed_file_name = 'tmp_files/test1_zip'
         decompressed_file_name = 'tmp_files/test1_res.txt'
+        self.files_to_remove = [compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
 
     def test_2(self):
         original_file_name = 'test_files/test2.xml'
         compressed_file_name = 'tmp_files/test2_zip'
         decompressed_file_name = 'tmp_files/test2_res.xml'
+        self.files_to_remove = [compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
 
     def test_3(self):
         original_file_name = 'test_files/test3.txt'
         compressed_file_name = 'tmp_files/test3_zip'
         decompressed_file_name = 'tmp_files/test3_res.txt'
+        self.files_to_remove = [compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
 
     def test_4(self):
         original_file_name = 'test_files/test4.txt'
         compressed_file_name = 'tmp_files/test4_zip'
         decompressed_file_name = 'tmp_files/test4_res.txt'
+        self.files_to_remove = [compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
 
     def test_5(self):
@@ -73,11 +78,12 @@ class TestApp(TestCase):
             [file2.write(data) for _ in range(5)]
         compressed_file_name = 'tmp_files/test5_zip'
         decompressed_file_name = 'tmp_files/test5_res.xml'
+        self.files_to_remove = [original_file_name, compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
-        os.remove(original_file_name)
 
     def test_6(self):
         original_file_name = 'test_files/test6.txt'
         compressed_file_name = 'tmp_files/test6_zip'
         decompressed_file_name = 'tmp_files/test6_res.txt'
+        self.files_to_remove = [compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
