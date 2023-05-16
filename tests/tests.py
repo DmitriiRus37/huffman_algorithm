@@ -38,7 +38,9 @@ class TestApp(TestCase):
     # Ran 6 tests in 133.561s
 
     def tearDown(self):
-        [os.remove(f) for f in self.files_to_remove]
+        for f in self.files_to_remove:
+            if os.path.isfile(f):
+                os.remove(f)
 
     def test_1(self):
         original_file_name = 'test_files/test1.txt'
