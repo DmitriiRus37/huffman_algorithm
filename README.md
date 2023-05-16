@@ -25,7 +25,7 @@ chmod +x ./venv/bin/activate &&
 You can check:
 `
 venv/bin/python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
-venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res && 
+venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res ;
 rm tests/test_files/test2_enc tests/test_files/test2_res
 `
 --- 189 different symbols ---
@@ -44,7 +44,7 @@ cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml &&
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml  && 
 venv/bin/python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
-venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml &&
+venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml ;
 rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
 `
 --- 189 different symbols ---
