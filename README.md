@@ -4,7 +4,7 @@ Compressed binary string consists of:
 1. header:
    a) count of bytes UTF-8 encoded of rest of header
    b) UTF-8 symbols encoded: '0', '1' or symbol
-2. sequence to decode
+2. sequence enccoded
 
    For Linux:
 1. download project
