@@ -28,9 +28,8 @@ class Compression:
     def create_huffman_tree(self) -> None:
         while len(self.nodes) != 1:
             self.nodes.sort(key=lambda x: x.freq)
-            parent = Node(left=self.nodes[0], right=self.nodes[1])
+            parent = Node(left=self.nodes.pop(0), right=self.nodes.pop(0))
             self.nodes.append(parent)
-            del self.nodes[:2]
 
     def add_header_info(self) -> bytes:
         symbol_codes = StringIO()
