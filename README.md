@@ -6,21 +6,30 @@ Compressed binary string consists of:
    b) UTF-8 symbols encoded: '0', '1' or symbol
 2. sequence enccoded
 
-   For Linux:
+For Linux:
 1. download project
 2. cd /path/to/project
 3. `
 python3.11 -m venv venv && 
 chmod +x ./venv/bin/activate && 
 ./venv/bin/activate && 
-./venv/bin/pip install -r requirements.txt
+./venv/bin/pip install pipenv==2023.6.26 
+./venv/bin/pipenv install
 `
 4.
    a) `venv/bin/python3.11 main.py *source_path* *dest_path*` to encode;   
    or   
    b) `venv/bin/python3.11 main.py decode *source_path* *dest_path*` to decode;
+5. to install kivy: https://kivy.org/doc/stable/gettingstarted/intro.html
+`
+apt install cmake ninja-build
+venv/bin/python3.11 -m pip install "kivy[base]" kivy_examples &&
+mkdir kivy-deps-build && cd kivy-deps-build &&
+curl -O https://raw.githubusercontent.com/kivy/kivy/master/tools/build_linux_dependencies.sh -o build_kivy_deps.sh &&
+chmod +x build_kivy_deps.sh &&
+./build_kivy_deps.sh
+`
 
-   
 
 You can check:
 `
