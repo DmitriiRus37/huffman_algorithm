@@ -41,8 +41,8 @@ sudo apt-get install libxcb-cursor0
 
 Edit program window:
 `
-pyqt6-tools designer  
-pyuic5 src/app_window.ui -o src/app_window.py    
+./venv/bin/pyqt6-tools designer  
+./venv/bin/pyuic6  src/app_window.ui -o src/app_window.py    
 `
 
 You can check:
