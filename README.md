@@ -1,3 +1,11 @@
+# TODO
+1. added CI/CD (???) 
+2. huffman decompress in window
+3. lzw compress/decompress in terminal
+4. huffman adaptive compress/decompress in terminal
+5. lzw compress/decompress in window
+6. huffman adaptive compress/decompress in window
+
 # huffman_algorithm
 
 Compressed binary string consists of:
