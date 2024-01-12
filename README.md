@@ -13,23 +13,29 @@ For Linux:
 python3.11 -m venv venv && 
 chmod +x ./venv/bin/activate && 
 ./venv/bin/activate && 
-./venv/bin/pip install pipenv==2023.6.26 
-./venv/bin/pipenv install
+./venv/bin/pip install pipenv && 
+./venv/bin/python3.11 -m pip install --upgrade pip && 
+./venv/bin/pipenv install && 
+sudo apt-get install libxcb-cursor0
+`
+   OPTIONAL!
+`
+./venv/bin/pipenv lock
 `
 4.
    a) `venv/bin/python3.11 main.py *source_path* *dest_path*` to encode;   
    or   
    b) `venv/bin/python3.11 main.py decode *source_path* *dest_path*` to decode;
-5. to install kivy: https://kivy.org/doc/stable/gettingstarted/intro.html
+5. run Window mode:
 `
-apt install cmake ninja-build
-venv/bin/python3.11 -m pip install "kivy[base]" kivy_examples &&
-mkdir kivy-deps-build && cd kivy-deps-build &&
-curl -O https://raw.githubusercontent.com/kivy/kivy/master/tools/build_linux_dependencies.sh -o build_kivy_deps.sh &&
-chmod +x build_kivy_deps.sh &&
-./build_kivy_deps.sh
+./venv/bin/python3.11 src/app_window.py
 `
 
+Edit program window:
+`
+pyqt6-tools designer  
+pyuic5 src/app_window.ui -o src/app_window.py    
+`
 
 You can check:
 `
@@ -48,6 +54,7 @@ rm tests/test_files/test2_enc tests/test_files/test2_res
 --- Compression: 55.02 % ---
 
 
+STRESS TEST:
 `
 cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 

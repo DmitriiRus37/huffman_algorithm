@@ -4,12 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-bitstring = "==4.0.2"
-bitarray = "~=2.7.4"
-tqdm = "==4.65.0"
-pyqt5 = "==5.15.9"
-pyqt6-tools = "==6.4.2.3.3"
+bitstring = "==4.1.4"
+bitarray = "~=2.9.2"
+tqdm = "==4.66.1"
 PyQt6 = "==6.4.2"
+pyqt6-tools = "==6.4.2.3.3"
+pyqt5-stubs = "==5.15.6.0"
+pyuic5-tool = "==0.0.1"
 
 [dev-packages]
 
