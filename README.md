@@ -1,3 +1,11 @@
+# TODO
+1. added CI/CD (???) 
+2. huffman decompress in window
+3. lzw compress/decompress in terminal
+4. huffman adaptive compress/decompress in terminal
+5. lzw compress/decompress in window
+6. huffman adaptive compress/decompress in window
+
 # huffman_algorithm
 
 Compressed binary string consists of:
@@ -6,21 +14,36 @@ Compressed binary string consists of:
    b) UTF-8 symbols encoded: '0', '1' or symbol
 2. sequence enccoded
 
-   For Linux:
+For Linux:
 1. download project
 2. cd /path/to/project
 3. `
 python3.11 -m venv venv && 
 chmod +x ./venv/bin/activate && 
 ./venv/bin/activate && 
-./venv/bin/pip install -r requirements.txt
+./venv/bin/pip install pipenv && 
+./venv/bin/python3.11 -m pip install --upgrade pip && 
+./venv/bin/pipenv install && 
+sudo apt-get install libxcb-cursor0
+`
+   OPTIONAL!
+`
+./venv/bin/pipenv lock
 `
 4.
    a) `venv/bin/python3.11 main.py *source_path* *dest_path*` to encode;   
    or   
    b) `venv/bin/python3.11 main.py decode *source_path* *dest_path*` to decode;
+5. run Window mode:
+`
+./venv/bin/python3.11 src/app_window.py
+`
 
-   
+Edit program window:
+`
+pyqt6-tools designer  
+pyuic5 src/app_window.ui -o src/app_window.py    
+`
 
 You can check:
 `
@@ -39,6 +62,7 @@ rm tests/test_files/test2_enc tests/test_files/test2_res
 --- Compression: 55.02 % ---
 
 
+STRESS TEST:
 `
 cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 

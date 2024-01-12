@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 from unittest.mock import patch
 
-import main
+from src import main
 
 
 def get_args(original_file_name, compressed_file_name):
