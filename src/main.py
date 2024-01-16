@@ -11,8 +11,8 @@ def main():
     if sys.argv[1] == 'decode':
         source_path = os.path.abspath(sys.argv[2])
         dest_path = os.path.abspath(sys.argv[3])
-        dec = Decompression()
-        dec.decompress(source_path, dest_path)
+        d = Decompression()
+        d.decompress(source_path, dest_path)
         get_compression_info(dest_path, source_path)
     else:
         source_path = os.path.abspath(sys.argv[1])
