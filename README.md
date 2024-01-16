@@ -10,9 +10,11 @@
 
 Compressed binary string consists of:
 1. header:
+   
    a) count of bytes UTF-8 encoded of rest of header
+   
    b) UTF-8 symbols encoded: '0', '1' or symbol
-2. sequence enccoded
+3. sequence encoded
 
 For Linux:
 1. download project
@@ -26,31 +28,40 @@ chmod +x ./venv/bin/activate &&
 ./venv/bin/pipenv install && 
 sudo apt-get install libxcb-cursor0
 `
-   OPTIONAL!
+
+OPTIONAL!
+   
 `
 ./venv/bin/pipenv lock
 `
+
 4.
    a) `venv/bin/python3.11 main.py *source_path* *dest_path*` to encode;   
    or   
    b) `venv/bin/python3.11 main.py decode *source_path* *dest_path*` to decode;
+
 5. run Window mode:
+   
 `
 ./venv/bin/python3.11 src/app_window.py
 `
 
 Edit program window:
+
 `
 ./venv/bin/pyqt6-tools designer  
 ./venv/bin/pyuic6  src/app_window.ui -o src/app_window.py    
 `
 
 You can check:
+
 `
 venv/bin/python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
 venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res ;
 rm tests/test_files/test2_enc tests/test_files/test2_res
 `
+
+
 --- 189 different symbols ---
 --- 1.4361639022827148 seconds to define symbols frequency ---
 --- 2.529226064682007 seconds to encode file ---
@@ -63,6 +74,7 @@ rm tests/test_files/test2_enc tests/test_files/test2_res
 
 
 STRESS TEST:
+
 `
 cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 
@@ -71,6 +83,7 @@ venv/bin/python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_e
 venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml ;
 rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
 `
+
 --- 189 different symbols ---
 --- 4.063854217529297 seconds to define symbols frequency ---
 --- 7.374655485153198 seconds to encode file ---
