@@ -13,6 +13,7 @@ pyqt5-stubs = "==5.15.6.0"
 pyuic5-tool = "==0.0.1"
 
 [dev-packages]
+pytest = "*"
 
 [requires]
 python_version = "3.11"
