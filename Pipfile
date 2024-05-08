@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-bitstring = "==4.1.4"
+bitstring = "==4.2.1"
 bitarray = "~=2.9.2"
-tqdm = "==4.66.3"
+tqdm = "==4.66.4"
 PyQt6 = "==6.4.2"
 pyqt6-tools = "==6.4.2.3.3"
 pyqt5-stubs = "==5.15.6.0"
