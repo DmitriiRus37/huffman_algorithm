@@ -3,3 +3,7 @@ venv
 # editor configs
 .vscode
 .idea
+
+# python caches
+__pycache__/
+.pytest_cache/

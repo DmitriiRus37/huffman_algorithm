@@ -46,9 +46,9 @@ OPTIONAL!
 `
 
 4.
-   a) `venv/bin/python3.11 main.py *source_path* *dest_path*` to encode;   
+   a) `venv/bin/python3 src/main.py *source_path* *dest_path*` to encode;   
    or   
-   b) `venv/bin/python3.11 main.py decode *source_path* *dest_path*` to decode;
+   b) `venv/bin/python3 src/main.py decode *source_path* *dest_path*` to decode;
 
 5. run Window mode:
    
@@ -63,11 +63,21 @@ Edit program window:
 ./venv/bin/pyuic6  src/app_window.ui -o src/app_window.py    
 `
 
+Run tests:
+
+`
+./venv/bin/python -m pytest
+`
+
+or, without the large-file test, `./venv/bin/python -m pytest -m "not slow"`.
+
+Library code lives in the `src/huffman` package; `src/main.py` (CLI) and `src/app_window.py` (GUI) use it.
+
 You can check:
 
 `
-venv/bin/python3 main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
-venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res ;
+venv/bin/python3 src/main.py tests/test_files/test2.xml tests/test_files/test2_enc && 
+venv/bin/python3 src/main.py decode tests/test_files/test2_enc tests/test_files/test2_res ;
 rm tests/test_files/test2_enc tests/test_files/test2_res
 `
 
@@ -89,8 +99,8 @@ STRESS TEST:
 cat tests/test_files/test2.xml > tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml && 
 cat tests/test_files/test2.xml >> tests/test_files/test2_tmp.xml  && 
-venv/bin/python3 main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
-venv/bin/python3 main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml ;
+venv/bin/python3 src/main.py tests/test_files/test2_tmp.xml tests/test_files/test2_enc && 
+venv/bin/python3 src/main.py decode tests/test_files/test2_enc tests/test_files/test2_res.xml ;
 rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/test2_res.xml
 `
 

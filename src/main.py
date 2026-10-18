@@ -1,9 +1,7 @@
 import os
 import sys
 
-from compression import Compression
-from decompression import Decompression
-from helpers import get_compression_info
+from huffman import Compression, Decompression, get_compression_info
 
 
 # TODO add compressing of some files to one compressed_file

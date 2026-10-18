@@ -1,0 +1,13 @@
+[project]
+name = "huffman-algorithm"
+version = "0.1.0"
+description = "Huffman compression and decompression of files"
+readme = "README.md"
+requires-python = ">=3.14"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "slow: large-file tests (deselect with -m 'not slow')",
+]

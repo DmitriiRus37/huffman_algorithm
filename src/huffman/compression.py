@@ -3,8 +3,8 @@ import os
 import zlib
 from collections import Counter
 from io import BytesIO
-from helpers import print_time_spent, update_pbar
-from node import Node
+from .helpers import print_time_spent, update_pbar
+from .node import Node
 from tqdm import tqdm
 from bitarray import bitarray
 

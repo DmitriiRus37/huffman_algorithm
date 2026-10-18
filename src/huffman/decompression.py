@@ -2,8 +2,8 @@ import os
 import zlib
 from itertools import islice
 from bitarray import bitarray, decodetree
-from compression import MAGIC, FORMAT_VERSION, PARTITION_SIZE
-from helpers import print_time_spent, update_pbar
+from .compression import MAGIC, FORMAT_VERSION, PARTITION_SIZE
+from .helpers import print_time_spent, update_pbar
 from tqdm import tqdm
 
 

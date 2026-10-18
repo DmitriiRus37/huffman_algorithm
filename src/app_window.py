@@ -9,9 +9,7 @@ from pathlib import Path
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtWidgets import QFileDialog
 
-from compression import Compression
-from decompression import Decompression
-from helpers import get_compression_info
+from huffman import Compression, Decompression, get_compression_info
 
 
 def remove_input_file_suffix(file_path):

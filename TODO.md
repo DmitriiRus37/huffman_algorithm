@@ -38,17 +38,17 @@ Findings from a review on 2026-10-18. Ordered by priority.
 
 ## P2 — Tooling, tests & CI
 
-- [ ] **Fix CI.** `.github/workflows/python-app.yml` uses Python 3.10 and installs from `requirements.txt`, which
+- [x] **Fix CI.** `.github/workflows/python-app.yml` uses Python 3.10 and installs from `requirements.txt`, which
   doesn't exist (the project uses Pipfile). As a result, `bitarray` and `tqdm` are never installed. Align it with the
   Pipfile, bump `actions/checkout` and `actions/setup-python` to current versions, and run pytest from the right directory.
-- [ ] **Make tests independent of the CWD.** Paths such as `'test_files/test1.txt'` only work when run from `tests/`.
+- [x] **Make tests independent of the CWD.** Paths such as `'test_files/test1.txt'` only work when run from `tests/`.
   Use `pathlib.Path(__file__).parent` or pytest's `tmp_path`, and don't write `test5.xml` into `test_files/`.
-- [ ] **Add edge-case tests:** empty file, single-symbol file, CRLF, binary/non-UTF-8, and a file where every byte
+- [x] **Add edge-case tests:** empty file, single-symbol file, CRLF, binary/non-UTF-8, and a file where every byte
   value appears.
-- [ ] **Make the large-file test cheaper.** The 15 MB `test2.xml` in the repo is the main cause of the ~130 s test run.
+- [x] **Make the large-file test cheaper.** The 15 MB `test2.xml` in the repo is the main cause of the ~130 s test run.
   Generate the large input during the test, or mark it as `slow`.
-- [ ] **Remove the unused `bitstring` dependency** from the Pipfile. Nothing imports it.
-- [ ] **Package layout.** `src/` modules import each other as top-level modules (`from helpers import ...`), while
+- [x] **Remove the unused `bitstring` dependency** from the Pipfile. Nothing imports it.
+- [x] **Package layout.** `src/` modules import each other as top-level modules (`from helpers import ...`), while
   tests import `from src import main`. Turn the code into a proper package (with `pyproject.toml`) so that imports
   work everywhere.
 
