@@ -8,13 +8,23 @@
 
 # huffman_algorithm
 
-Compressed binary string consists of:
+Any file (text or binary) can be compressed: the alphabet is the 256 byte values.
+
+Compressed file consists of (integers are big-endian):
 1. header:
-   
-   a) count of bytes UTF-8 encoded of rest of header
-   
-   b) UTF-8 symbols encoded: '0', '1' or symbol
-3. sequence encoded
+
+   a) 4 bytes - magic `HUFF`
+
+   b) 1 byte - format version
+
+   c) 8 bytes - size of the original file in bytes
+
+   d) 4 bytes - CRC32 of the original file
+
+   e) 2 bytes - length of the serialized tree
+
+   f) pre-order tree: `0` - internal node, `1` + raw byte - leaf
+2. encoded data, the last byte is padded with zero bits
 
 For Linux:
 1. download project

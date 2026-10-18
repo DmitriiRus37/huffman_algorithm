@@ -1,117 +1,101 @@
 import os
-from bitarray import bitarray
-from helpers import print_time_spent, WrapValue, update_pbar
-from node import Node
+import zlib
+from itertools import islice
+from bitarray import bitarray, decodetree
+from compression import MAGIC, FORMAT_VERSION, PARTITION_SIZE
+from helpers import print_time_spent, update_pbar
 from tqdm import tqdm
 
 
 class Decompression:
     def __init__(self):
         self.table_of_codes = {}
-        self.nodes = []
-        self.block = bitarray()
-        self.padding_bits = 0
-        self.rest_bits = bitarray()
-        self.rest_code = ''
+        self.symbols_count = 0
+        self.crc = 0
 
     @print_time_spent(message="to read all bytes from file")
     def read_from_file(self, f) -> int:
-        header, header_bytes = self.read_header(f)
-        header = WrapValue(header)
-        root_node = Node(left=None, right=None)
-        self.nodes.append(root_node)
-        if len(header.val) == 2:
-            self.restore_tree(root_node, header, '0')
-        else:
-            self.restore_tree(root_node, header, '')
+        tree, header_bytes = self.read_header(f)
+        if len(tree) == 2:
+            # a single symbol in the source file gets code '0'
+            self.restore_tree(tree, 0, '0')
+        elif tree:
+            if self.restore_tree(tree, 0, '') != len(tree):
+                raise Exception('header is invalid')
         return header_bytes
 
     @print_time_spent(message="to decompress")
     def decompress(self, source: str, dest: str) -> None:
-        with open(source, "rb") as f, open(dest, "wb") as f_out:
-            partition_size = 1024 * 64
-            header_bytes = self.read_from_file(f)
+        with open(source, "rb") as f_in, open(dest, "wb") as f_out:
+            header_bytes = self.read_from_file(f_in)
             pbar = tqdm(total=float(os.path.getsize(source) / 1024 / 1024),
                         unit="Mb", unit_scale=True,
                         desc="Decoded")
             update_pbar(header_bytes / 1024 / 1024, pbar)
-
-            self.padding_bits = int.from_bytes(f.read(1), 'big')
-            self.block.frombytes(f.read(partition_size))
-            if not self.table_of_codes:
-                # empty source file
-                if self.block != bitarray():
-                    raise Exception('encoded file invalid!!!')
-                pbar.close()
-                return
-            if self.block == bitarray():
-                raise Exception('Encrypted file contains only header')
-            while True:
-                next_block = bitarray()
-                next_block.frombytes(f.read(partition_size))
-                if next_block == bitarray():
-                    self.decode_last_block(f_out)
-                    update_pbar(self.block.nbytes / 1024 / 1024, pbar)
-                    break
-                self.decode_block(f_out)
-                update_pbar(self.block.nbytes / 1024 / 1024, pbar)
-                self.block = next_block
+            crc = self.decode_data(f_in, f_out, pbar)
             pbar.close()
+        if crc != self.crc:
+            raise Exception('encoded file invalid: CRC32 mismatch')
 
-    def restore_tree(self, node: Node, symbol_str: WrapValue, code: str) -> None:
-        if symbol_str.val == b'':
-            return
-        symbol = symbol_str.val[0]
-        symbol_str.val = symbol_str.val[1:]
-        if symbol == ord('0'):
-            left_node = Node(left=None, right=None)
-            node.left = left_node
-            self.restore_tree(left_node, symbol_str, code + '0')
-            right_node = Node(left=None, right=None)
-            node.right = right_node
-            self.restore_tree(right_node, symbol_str, code + '1')
-        elif symbol == ord('1'):
-            symbol = symbol_str.val[0]
-            symbol_str.val = symbol_str.val[1:]
-            self.set_letter_to_a_node(node, symbol, code)
+    def decode_data(self, f_in, f_out, pbar: tqdm) -> int:
+        if not self.table_of_codes:
+            if self.symbols_count or f_in.read(1):
+                raise Exception('encoded file invalid!!!')
+            return 0
+        code_dict = {symbol: bitarray(code) for code, symbol in self.table_of_codes.items()}
+        tree = decodetree(code_dict)
+        remaining = self.symbols_count
+        rest_bits = bitarray()
+        crc = 0
+        while remaining:
+            partition = f_in.read(PARTITION_SIZE)
+            if not partition:
+                raise Exception('encoded file is truncated')
+            update_pbar(len(partition) / 1024 / 1024, pbar)
+            rest_bits.frombytes(partition)
+            symbols = []
+            try:
+                # stop at `remaining` so the zero padding at the end is never decoded
+                symbols.extend(islice(rest_bits.decode(tree), remaining))
+            except ValueError:
+                # the block ends inside a code; list.extend() keeps the symbols decoded before it
+                pass
+            consumed = bitarray()
+            consumed.encode(code_dict, symbols)
+            del rest_bits[:len(consumed)]
+            data = bytes(symbols)
+            crc = zlib.crc32(data, crc)
+            f_out.write(data)
+            remaining -= len(symbols)
+        if len(rest_bits) >= 8 or rest_bits.any() or f_in.read(1):
+            raise Exception('encoded file invalid: unexpected trailing data')
+        return crc
+
+    def restore_tree(self, tree: bytes, pos: int, code: str) -> int:
+        """Parse the node at `pos`, fill the table of codes and return the position after the node."""
+        if pos >= len(tree):
+            raise Exception('header is invalid')
+        if tree[pos] == ord('0'):
+            pos = self.restore_tree(tree, pos + 1, code + '0')
+            return self.restore_tree(tree, pos, code + '1')
+        elif tree[pos] == ord('1'):
+            if pos + 1 >= len(tree):
+                raise Exception('header is invalid')
+            self.table_of_codes[code] = tree[pos + 1]
+            return pos + 2
         else:
             raise Exception("Here must be a '0' or '1', not a letter")
 
-    def set_letter_to_a_node(self, node: Node, letter: int, code: str) -> None:
-        node.letter = letter
-        self.table_of_codes[code] = letter
-
-    @staticmethod
-    def read_header(file) -> tuple[bytes, int]:
-        header_bytes = read_4_bytes_to_int(file)
-        ba = read_to_bytes(header_bytes, file)
-        return ba, header_bytes + 4
-
-    def decode_block(self, f_out) -> None:
-        block_size_bits = len(self.block)
-        f_out.write(self.get_symbols(self.rest_bits + self.block[:block_size_bits-7]))
-        self.rest_bits = self.block[block_size_bits-7:]
-
-    def decode_last_block(self, f_out) -> None:
-        block_size_bits = len(self.block)
-        data = self.get_symbols(self.rest_bits + self.block[:block_size_bits - self.padding_bits])
-        if self.rest_code != '':
-            raise Exception('encoded file invalid!!!')
-        f_out.write(data)
-
-    def get_symbols(self, bitar: bitarray) -> bytes:
-        data = bytearray()
-        for bit in bitar:
-            self.rest_code += '0' if bit == 0 else '1'
-            if self.rest_code in self.table_of_codes:
-                data.append(self.table_of_codes[self.rest_code])
-                self.rest_code = ''
-        return bytes(data)
-
-
-def read_4_bytes_to_int(f) -> int:
-    return int.from_bytes(f.read(4), 'big')
-
-
-def read_to_bytes(count: int, f) -> bytes:
-    return bytes(f.read(count))
+    def read_header(self, file) -> tuple[bytes, int]:
+        if file.read(len(MAGIC)) != MAGIC:
+            raise Exception('not a Huffman compressed file')
+        version = int.from_bytes(file.read(1), 'big')
+        if version != FORMAT_VERSION:
+            raise Exception(f'unsupported format version {version}')
+        self.symbols_count = int.from_bytes(file.read(8), 'big')
+        self.crc = int.from_bytes(file.read(4), 'big')
+        tree_bytes = int.from_bytes(file.read(2), 'big')
+        tree = file.read(tree_bytes)
+        if len(tree) != tree_bytes:
+            raise Exception('encoded file is truncated')
+        return tree, len(MAGIC) + 1 + 8 + 4 + 2 + tree_bytes

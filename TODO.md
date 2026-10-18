@@ -20,20 +20,20 @@ Findings from a review on 2026-10-18. Ordered by priority.
 
 ## P1 — Robustness & performance
 
-- [ ] **Write the header first; drop the temp file.** The tree is known before encoding, so write the header and a
+- [x] **Write the header first; drop the temp file.** The tree is known before encoding, so write the header and a
   placeholder padding byte, encode, then `seek()` back and patch the padding byte. This removes the full second copy
   of the output and the hard-coded `tmp` file in the CWD (`src/compression.py:88-98`), which collides when two runs
   happen at once.
-- [ ] **Speed up block decoding.** `get_symbols` (`src/decompression.py:100-120`) decodes the whole 64 KB block again
+- [x] **Speed up block decoding.** `get_symbols` (`src/decompression.py:100-120`) decodes the whole 64 KB block again
   for each trimmed bit until it succeeds. Decompression is about 2.5× slower than compression (5.6 s vs 2.1 s on
   `test2.xml`). Options: walk the tree once to find the last complete code boundary, or store the symbol count in
   the header and decode only that many symbols.
 - [x] **Chunk encoding by size, not by line.** `encode_file` iterates with `for line in file`
   (`src/compression.py:103`), so a file with one huge line is loaded into memory all at once. Read fixed-size chunks
   instead (this also falls out of the switch to bytes).
-- [ ] **Stop slicing the header string in `restore_tree`.** `symbol_str.val[1:]` makes it O(n²)
+- [x] **Stop slicing the header string in `restore_tree`.** `symbol_str.val[1:]` makes it O(n²)
   (`src/decompression.py:64-75`). Use an index or iterator.
-- [ ] **Add a file-format magic number and version** so that non-Huffman files are rejected with a clear error.
+- [x] **Add a file-format magic number and version** so that non-Huffman files are rejected with a clear error.
   Optionally add a CRC32 of the original data.
 
 ## P2 — Tooling, tests & CI

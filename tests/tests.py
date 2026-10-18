@@ -112,3 +112,28 @@ class TestApp(TestCase):
     def test_binary_non_utf8(self):
         self.files_to_remove = []
         common_bytes('binary', b'caf\xc3\xa9 \xff\xfe\x00\x01 binary \x80\x81' * 100)
+
+    def test_corrupted_archives_are_rejected(self):
+        original_file_name = 'tmp_files/corrupt_src'
+        compressed_file_name = 'tmp_files/corrupt_zip'
+        decompressed_file_name = 'tmp_files/corrupt_res'
+        self.files_to_remove = [original_file_name, compressed_file_name, decompressed_file_name]
+        with open(original_file_name, 'wb') as f:
+            f.write(b'some text to compress, ' * 1000)
+        with patch('sys.argv', get_args(original_file_name, compressed_file_name)):
+            main.main()
+        with open(compressed_file_name, 'rb') as f:
+            archive = f.read()
+        corruptions = {
+            'bad magic': b'XXXX' + archive[4:],
+            'truncated': archive[:-10],
+            'flipped data byte': archive[:-5] + bytes([archive[-5] ^ 0xff]) + archive[-4:],
+            'trailing garbage': archive + b'\x00\x00',
+        }
+        for name, data in corruptions.items():
+            with self.subTest(name):
+                with open(compressed_file_name, 'wb') as f:
+                    f.write(data)
+                with patch('sys.argv', ['', 'decode', compressed_file_name, decompressed_file_name]):
+                    with self.assertRaises(Exception):
+                        main.main()
