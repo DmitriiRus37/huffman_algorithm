@@ -1,3 +1,4 @@
+import filecmp
 import os
 from unittest import TestCase
 from unittest.mock import patch
@@ -26,12 +27,22 @@ def common(original_file_name, compressed_file_name, decompressed_file_name):
     ]
     with patch('sys.argv', decompress_args):
         main.main()
-    with open(original_file_name, encoding="utf-8") as f1, open(decompressed_file_name, encoding="utf-8") as f2:
-        for line1, line2 in zip(f1, f2):
-            if line1 != line2:
-                print('Original file string: ' + line1)
-                print('Decompressed file string: ' + line2)
-            assert line1 == line2
+    assert filecmp.cmp(original_file_name, decompressed_file_name, shallow=False), \
+        f'{decompressed_file_name} differs from {original_file_name}'
+
+
+def common_bytes(test_name, data: bytes):
+    original_file_name = f'tmp_files/{test_name}_src'
+    compressed_file_name = f'tmp_files/{test_name}_zip'
+    decompressed_file_name = f'tmp_files/{test_name}_res'
+    with open(original_file_name, 'wb') as f:
+        f.write(data)
+    try:
+        common(original_file_name, compressed_file_name, decompressed_file_name)
+    finally:
+        for f in (original_file_name, compressed_file_name, decompressed_file_name):
+            if os.path.isfile(f):
+                os.remove(f)
 
 
 class TestApp(TestCase):
@@ -89,3 +100,15 @@ class TestApp(TestCase):
         decompressed_file_name = 'tmp_files/test6_res.txt'
         self.files_to_remove = [compressed_file_name, decompressed_file_name]
         common(original_file_name, compressed_file_name, decompressed_file_name)
+
+    def test_empty_file(self):
+        self.files_to_remove = []
+        common_bytes('empty', b'')
+
+    def test_crlf_line_endings(self):
+        self.files_to_remove = []
+        common_bytes('crlf', b'first line\r\nsecond line\r\n\r\nlast\r')
+
+    def test_binary_non_utf8(self):
+        self.files_to_remove = []
+        common_bytes('binary', b'caf\xc3\xa9 \xff\xfe\x00\x01 binary \x80\x81' * 100)
