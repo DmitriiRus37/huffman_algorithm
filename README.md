@@ -5,6 +5,7 @@
 4. huffman adaptive compress/decompress in terminal
 5. lzw compress/decompress in window
 6. huffman adaptive compress/decompress in window
+7. compress several files into one archive
 
 # huffman_algorithm
 
@@ -46,9 +47,12 @@ OPTIONAL!
 `
 
 4.
-   a) `venv/bin/python3 src/main.py *source_path* *dest_path*` to encode;   
+   a) `venv/bin/python3 src/main.py compress *source_path* *dest_path*` to encode;   
    or   
-   b) `venv/bin/python3 src/main.py decode *source_path* *dest_path*` to decode;
+   b) `venv/bin/python3 src/main.py decompress *source_path* *dest_path*` to decode.
+
+   Add `-q` to hide progress bars and timings, see `src/main.py --help`.
+   The old forms `main.py *source_path* *dest_path*` and `main.py decode ...` still work.
 
 5. run Window mode:
    

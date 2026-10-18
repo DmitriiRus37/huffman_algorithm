@@ -1,22 +1,19 @@
 import shutil
 from pathlib import Path
-from unittest.mock import patch
-
 import pytest
 
 import main
+from huffman import Decompression, HuffmanFormatError
 
 TEST_FILES = Path(__file__).parent / 'test_files'
 
 
 def compress(source: Path, dest: Path) -> None:
-    with patch('sys.argv', ['', str(source), str(dest)]):
-        main.main()
+    assert main.main(['compress', '--quiet', str(source), str(dest)]) == 0
 
 
 def decompress(source: Path, dest: Path) -> None:
-    with patch('sys.argv', ['', 'decode', str(source), str(dest)]):
-        main.main()
+    assert main.main(['decompress', '--quiet', str(source), str(dest)]) == 0
 
 
 def assert_round_trip(original: Path, tmp_path: Path) -> None:
@@ -88,5 +85,24 @@ def test_corrupted_archive_is_rejected(corruption, tmp_path):
     compressed = tmp_path / 'source.huff'
     compress(original, compressed)
     compressed.write_bytes(CORRUPTIONS[corruption](compressed.read_bytes()))
-    with pytest.raises(Exception):
-        decompress(compressed, tmp_path / 'source.res')
+    with pytest.raises(HuffmanFormatError):
+        Decompression(verbose=False).decompress(str(compressed), str(tmp_path / 'source.res'))
+    assert main.main(['decompress', '-q', str(compressed), str(tmp_path / 'source.res')]) == 1
+
+
+def test_legacy_cli_arguments(tmp_path):
+    original = tmp_path / 'source'
+    original.write_bytes(b'legacy command line')
+    compressed = tmp_path / 'source.huff'
+    decompressed = tmp_path / 'source.res'
+    assert main.main([str(original), str(compressed)]) == 0
+    assert main.main(['decode', str(compressed), str(decompressed)]) == 0
+    assert decompressed.read_bytes() == original.read_bytes()
+
+
+def test_cli_usage_errors(tmp_path, capsys):
+    with pytest.raises(SystemExit) as exc:
+        main.main([])
+    assert exc.value.code == 2
+    assert main.main(['compress', '-q', str(tmp_path / 'missing'), str(tmp_path / 'out')]) == 1
+    assert 'error:' in capsys.readouterr().err

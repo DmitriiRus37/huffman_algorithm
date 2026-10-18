@@ -122,8 +122,7 @@ class Ui_main_window(object):
         elif self.btn_lzw.isChecked():
             checked_button = self.btn_lzw
         else:
-            raise Exception('None button is clicked!')
-        # print("Selected: ", checked_button.objectName())
+            raise RuntimeError('None button is clicked!')
 
         home_dir = str(Path.home())
         fname = QFileDialog.getOpenFileName(main_window, 'Open file', home_dir)
@@ -188,7 +187,7 @@ class Ui_main_window(object):
         elif self.btn_lzw.isChecked():
             return self.btn_lzw
         else:
-            raise Exception('None button is clicked!')
+            raise RuntimeError('None button is clicked!')
 
 
 if __name__ == "__main__":

@@ -54,12 +54,12 @@ Findings from a review on 2026-10-18. Ordered by priority.
 
 ## P3 — Code quality / UX
 
-- [ ] **Use `argparse` in `main.py`.** It should print usage and errors cleanly instead of raising `IndexError` when
+- [x] **Use `argparse` in `main.py`.** It should print usage and errors cleanly instead of raising `IndexError` when
   arguments are missing. Consider subcommands such as `compress` and `decompress`.
-- [ ] **Replace the kwargs-dispatch `Node.__init__`** (`src/node.py`) with a `@dataclass` and an `is_leaf` property.
+- [x] **Replace the kwargs-dispatch `Node.__init__`** (`src/node.py`) with a `@dataclass` and an `is_leaf` property.
   Also replace the obscure `node.left == node.right is None` checks.
-- [ ] **Raise specific exceptions** (`ValueError` or a custom `HuffmanFormatError`) instead of bare `Exception`.
-- [ ] **Replace `WrapValue`** with return values. It exists only to fake out-parameters.
-- [ ] **Reduce side effects in the library.** Progress bars and timing prints belong to the CLI and GUI layers.
+- [x] **Raise specific exceptions** (`ValueError` or a custom `HuffmanFormatError`) instead of bare `Exception`.
+- [x] **Replace `WrapValue`** with return values. It exists only to fake out-parameters.
+- [x] **Reduce side effects in the library.** Progress bars and timing prints belong to the CLI and GUI layers.
   Add a `verbose`/`progress` flag.
-- [ ] **Resolve `TODO` in `main.py:9`:** support archiving multiple files, or remove the comment.
+- [x] **Resolve `TODO` in `main.py:9`:** support archiving multiple files, or remove the comment.

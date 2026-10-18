@@ -3,6 +3,7 @@ import os
 import zlib
 from collections import Counter
 from io import BytesIO
+from .errors import HuffmanError
 from .helpers import print_time_spent, update_pbar
 from .node import Node
 from tqdm import tqdm
@@ -28,7 +29,8 @@ def split_write_and_rem(bit_arr: bitarray) -> tuple[bitarray, bitarray]:
 
 class Compression:
 
-    def __init__(self):
+    def __init__(self, verbose: bool = True):
+        self.verbose = verbose
         self.symbols_count = 0
         self.crc = 0
         self.table_of_codes = {}
@@ -43,7 +45,7 @@ class Compression:
         while len(heap) > 1:
             _, _, left = heapq.heappop(heap)
             _, _, right = heapq.heappop(heap)
-            parent = Node(left=left, right=right)
+            parent = Node.parent(left, right)
             heapq.heappush(heap, (parent.freq, counter, parent))
             counter += 1
         self.nodes = [heap[0][2]] if heap else []
@@ -62,7 +64,7 @@ class Compression:
                 + tree)
 
     def build_header(self, node: Node, current_header: BytesIO) -> None:
-        if node.left == node.right is None:
+        if node.is_leaf:
             current_header.write(b'1' + bytes([node.letter]))
         else:
             current_header.write(b'0')
@@ -72,11 +74,13 @@ class Compression:
     @print_time_spent(message="to encode file")
     def encode_and_write(self, source, dest) -> None:
         input_file_size = os.path.getsize(source) / 1024 / 1024
-        print(f'Size of input file: {str(input_file_size)} Mb')
+        if self.verbose:
+            print(f'Size of input file: {str(input_file_size)} Mb')
         with open(file=source, mode='rb') as f_in, open(file=dest, mode='wb') as f_out:
             f_out.write(self.add_header_info())
             bit_arr_remainder = bitarray()
-            pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True)
+            pbar = tqdm(total=self.symbols_count, desc="Encoded symbols", unit='symbols', unit_scale=True,
+                        disable=not self.verbose)
             while True:
                 chunk = f_in.read(PARTITION_SIZE)
                 if not chunk:
@@ -95,12 +99,12 @@ class Compression:
         unique_symbols = len(self.char_freq)
         expected_len = 3 * unique_symbols - 1 if unique_symbols else 0
         if len(header) != expected_len:
-            raise Exception('header is invalid')
+            raise HuffmanError('header is invalid')
 
     @print_time_spent(message="to compress file")
     def compress(self, source: str, dest: str) -> None:
         self.define_freq(source)
-        self.nodes = [Node(letter=k, freq=v) for k, v in self.char_freq.items()]
+        self.nodes = [Node(freq=v, letter=k) for k, v in self.char_freq.items()]
         self.create_huffman_tree()
         if len(self.char_freq) == 1:
             self.create_table_of_codes(self.nodes[0], '0')
@@ -117,7 +121,7 @@ class Compression:
     def validate_table_of_codes(self) -> None:
         for key, value in self.table_of_codes.items():
             if value == bitarray():
-                raise Exception(f'symbol {key} doesn\'t have a code')
+                raise HuffmanError(f'symbol {key} doesn\'t have a code')
 
     @print_time_spent(message="to define symbols frequency")
     def define_freq(self, path: str) -> None:
@@ -127,7 +131,7 @@ class Compression:
         with open(path, "rb") as f:
             pbar = tqdm(total=float(os.path.getsize(path) / 1024 / 1024),
                         unit="Mb", unit_scale=True,
-                        desc="Read to define frequency")
+                        desc="Read to define frequency", disable=not self.verbose)
             while True:
                 chunk = f.read(chunk_size)
                 if not chunk:
@@ -138,11 +142,12 @@ class Compression:
             pbar.close()
         self.char_freq = dict(counter)
         self.crc = crc
-        print(f"--- {len(self.char_freq)} different symbols ---")
+        if self.verbose:
+            print(f"--- {len(self.char_freq)} different symbols ---")
         self.symbols_count = sum(self.char_freq.values())
 
     def create_table_of_codes(self, n: Node, code: str) -> None:
-        if n.left == n.right is None:
+        if n.is_leaf:
             self.table_of_codes[n.letter] = code
         else:
             self.create_table_of_codes(n.left, code + '0')
