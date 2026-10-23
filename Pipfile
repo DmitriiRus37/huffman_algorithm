@@ -9,7 +9,8 @@ tqdm = "==4.70.1"
 PyQt6 = "==6.11.0"
 
 [dev-packages]
-pytest = "*"
+pytest = "==9.1.1"
+pytest-cov = "==7.1.0"
 
 [requires]
 python_version = "3.14"

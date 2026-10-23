@@ -7,3 +7,9 @@ venv
 # python caches
 __pycache__/
 .pytest_cache/
+
+# coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml

@@ -21,6 +21,7 @@ def remove_input_file_suffix(file_path):
 
 class Ui_main_window(object):
     def setupUi(self, main_window):
+        self.main_window = main_window
         main_window.setObjectName("main_window")
         main_window.resize(991, 580)
         self.log_label_field = QtWidgets.QLineEdit(parent=main_window)
@@ -125,7 +126,7 @@ class Ui_main_window(object):
             raise RuntimeError('None button is clicked!')
 
         home_dir = str(Path.home())
-        fname = QFileDialog.getOpenFileName(main_window, 'Open file', home_dir)
+        fname = QFileDialog.getOpenFileName(self.main_window, 'Open file', home_dir)
         output_file_suffix = ".huff"
         if checked_button == self.btn_huffman_adaptive:
             output_file_suffix = ".h_ad"
@@ -138,7 +139,7 @@ class Ui_main_window(object):
 
     def open_input_file_to_decompress_dialog(self):
         home_dir = str(Path.home())
-        fname = QFileDialog.getOpenFileName(main_window, 'Open file', home_dir)
+        fname = QFileDialog.getOpenFileName(self.main_window, 'Open file', home_dir)
 
         output_file_suffix = ".txt"
         output_file_path = remove_input_file_suffix(fname[0]) + output_file_suffix
