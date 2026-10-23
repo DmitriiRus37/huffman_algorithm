@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-bitarray = "~=3.8.0"
-tqdm = "==4.67.3"
-PyQt6 = "==6.10.2"
+bitarray = "~=3.12.3"
+tqdm = "==4.70.1"
+PyQt6 = "==6.11.0"
 
 [dev-packages]
 pytest = "*"
