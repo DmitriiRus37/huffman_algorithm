@@ -1,13 +1,29 @@
-# TODO
-1. added CI/CD (???) 
-2. huffman decompress in window
-3. lzw compress/decompress in terminal
-4. huffman adaptive compress/decompress in terminal
-5. lzw compress/decompress in window
-6. huffman adaptive compress/decompress in window
-7. compress several files into one archive
-
 # huffman_algorithm
+
+A static Huffman coder that compresses and decompresses any file (text or binary). It builds a code tree
+from byte frequencies, writes a self-describing `HUFF` container with the original size and a CRC32 check,
+and restores the original file byte for byte. It comes with a command-line tool (`src/main.py`) and a
+PyQt6 desktop window (`src/app_window.py`).
+
+## Tech stack
+
+Python 3.14; bitarray, tqdm, PyQt6; pytest + pytest-cov for tests.
+
+## Build & test
+
+```
+uv run --group dev pytest              # tests with line + branch coverage; fails below 90 %
+uv run --group dev pytest -m "not slow"  # skip the large-file test
+```
+
+## Run
+
+```
+uv run src/main.py compress <source_path> <dest_path>
+uv run src/main.py decompress <source_path> <dest_path>   # add -q to hide progress bars
+```
+
+## File format
 
 Any file (text or binary) can be compressed: the alphabet is the 256 byte values.
 
@@ -117,3 +133,7 @@ rm tests/test_files/test2_tmp.xml tests/test_files/test2_enc tests/test_files/te
 --- 14.517167091369629 seconds to decode file and write it to dest ---
 --- 14.935723304748535 seconds to decompress ---
 --- Compression: 55.02 % ---
+
+## TODO
+
+See [TODO.md](TODO.md).
